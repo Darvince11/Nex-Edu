@@ -1,0 +1,69 @@
+[project]
+name = "nexedu-api"
+version = "0.1.0"
+description = "Multi-tenant Nex Edu API (database-per-school)"
+readme = "README.md"
+# Production images run Python 3.14; 3.13 is the minimum supported for local dev.
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.1.2,<6.2",
+    "djangorestframework>=3.18.3",
+    "drf-spectacular>=0.30.0",
+    "django-allauth[mfa,headless]>=65.20.0",
+    "django-cors-headers>=4.9.0",
+    "celery[redis]>=5.6.3",
+    "redis>=8.1.0",
+    "psycopg[binary]>=3.3.6",
+    "cryptography>=50.0.2",
+    "argon2-cffi>=25.1.0",
+    "boto3>=1.43.0",
+    "granian>=2.8.4",
+    "reportlab>=5.0.1",
+    "httpx>=0.28.1",
+    "django-storages[s3]>=1.14.6",
+    "openpyxl>=3.1.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-django>=4.14.0",
+    "pytest-xdist>=3.8.0",
+    "factory-boy>=3.3.3",
+    "ruff>=0.17.1",
+    "mypy>=2.4.0",
+    "django-stubs>=6.1.2",
+    "pip-audit>=2.9.0",
+]
+
+[tool.uv]
+# Every dependency is resolved into uv.lock with hashes; CI installs with --locked.
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "DJ", "SIM", "RUF", "PT"]
+ignore = ["RUF012", "DJ008", "PT018", "SIM105", "SIM117"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+"config/settings/*" = ["S105"]
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main"]
+strict = true
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"

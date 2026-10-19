@@ -1,0 +1,10 @@
+{% autoescape off %}Hello{% if user.first_name %} {{ user.first_name }}{% endif %},
+
+{{ school }} has added you to Nex Edu as {{ role }}.
+
+Set your password to get started:
+{{ invite_url }}
+
+This link works once and expires in 3 days. If you weren't expecting this, you can ignore this email.
+
+Nex Edu{% endautoescape %}

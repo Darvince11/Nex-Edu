@@ -1,0 +1,40 @@
+;; PgBouncer for one cell. One instance pool per cell, running as an ECS service
+;; reachable at pgbouncer-<cell>.nexedu.internal:6432.
+;;
+;; Every school database on the cell is served by the wildcard entry, so
+;; provisioning a new school needs no PgBouncer change. Logins are verified
+;; with SCRAM against the cell through auth_query, using one low-privilege
+;; lookup role in the "postgres" database (auth_dbname), so schools' passwords
+;; never appear in a PgBouncer userlist file.
+
+[databases]
+* = host=${CELL_WRITER_ENDPOINT} port=5432 auth_dbname=postgres
+
+[pgbouncer]
+listen_addr = 0.0.0.0
+listen_port = 6432
+pool_mode = transaction
+max_client_conn = 5000
+default_pool_size = 10
+min_pool_size = 0
+reserve_pool_size = 5
+max_db_connections = 40
+server_idle_timeout = 120
+max_prepared_statements = 200
+
+auth_type = scram-sha-256
+auth_user = pgbouncer_auth
+auth_query = SELECT usename, passwd FROM pgbouncer.get_auth($1)
+
+;; TLS on both sides. The app verifies PgBouncer; PgBouncer verifies Aurora.
+client_tls_sslmode = require
+client_tls_key_file = /etc/pgbouncer/tls/server.key
+client_tls_cert_file = /etc/pgbouncer/tls/server.crt
+server_tls_sslmode = verify-full
+server_tls_ca_file = /etc/ssl/certs/rds-global-bundle.pem
+
+admin_users =
+stats_users = pgbouncer_stats
+ignore_startup_parameters = extra_float_digits,options
+log_connections = 0
+log_disconnections = 0

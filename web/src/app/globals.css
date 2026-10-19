@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: oklch(0.45 0.12 160);
+  --color-brand-strong: oklch(0.38 0.12 160);
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply min-h-dvh bg-white text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-100;
+}
+
+.input {
+  @apply w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-700 dark:bg-neutral-900;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong disabled:opacity-60;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 font-medium hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900;
+}

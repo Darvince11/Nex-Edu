@@ -1,0 +1,31 @@
+# Local stack that mirrors production services. Credentials here are local-only.
+#   docker compose up -d
+#   cd backend && DJANGO_SETTINGS_MODULE=config.settings.compose python manage.py migrate
+name: nexedu
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: nexedu
+      POSTGRES_PASSWORD: nexedu-local-only
+      POSTGRES_DB: control_plane
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexedu -d control_plane"]
+      interval: 5s
+      retries: 10
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports: ["127.0.0.1:6379:6379"]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+
+volumes:
+  pgdata:

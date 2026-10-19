@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    "docker:pinDigests",
+    ":semanticCommits",
+    ":separateMultipleMajorReleases"
+  ],
+  "timezone": "Africa/Lagos",
+  "schedule": ["before 6am on monday"],
+  "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 6am on monday"] },
+  "vulnerabilityAlerts": { "enabled": true, "minimumReleaseAge": null, "schedule": ["at any time"] },
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "description": "Patch and minor updates merge themselves once CI passes",
+      "matchUpdateTypes": ["patch", "minor", "digest", "pin"],
+      "automerge": true
+    },
+    {
+      "description": "Majors arrive as one grouped weekly PR and need review",
+      "matchUpdateTypes": ["major"],
+      "groupName": "major updates",
+      "automerge": false,
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Auth, crypto and framework packages always need a human review",
+      "matchPackageNames": [
+        "django",
+        "django-allauth",
+        "djangorestframework",
+        "cryptography",
+        "pyjwt",
+        "fido2",
+        "next",
+        "react",
+        "react-dom",
+        "@simplewebauthn/browser"
+      ],
+      "automerge": false
+    },
+    {
+      "description": "Terraform AWS provider: review plan output before merging",
+      "matchManagers": ["terraform"],
+      "automerge": false
+    }
+  ]
+}
