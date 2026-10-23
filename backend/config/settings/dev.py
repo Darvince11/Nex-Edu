@@ -18,6 +18,23 @@ if not HEADLESS_JWT_PRIVATE_KEY:  # noqa: F405
         serialization.NoEncryption(),
     ).decode()
 
+# The web app proxies the API from its own origin. Browsers send that origin on
+# every POST, so Django must trust it or CSRF checks reject sign-in.
+_LOCAL_WEB = [
+    "http://localhost:3000",
+    "http://localhost:3100",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3100",
+]
+CSRF_TRUSTED_ORIGINS = sorted({*CSRF_TRUSTED_ORIGINS, *_LOCAL_WEB})  # noqa: F405
+FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3100")  # noqa: F405
+HEADLESS_FRONTEND_URLS = {
+    "account_confirm_email": f"{FRONTEND_URL}/account/verify-email/{{key}}",
+    "account_reset_password_from_key": f"{FRONTEND_URL}/account/password/reset/{{key}}",
+    "account_signup": f"{FRONTEND_URL}/signup",
+    "account_reset_password": f"{FRONTEND_URL}/forgot-password",
+}
+
 MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
 MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = True
 BREACHED_PASSWORD_CHECK_ENABLED = False

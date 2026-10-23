@@ -135,7 +135,24 @@ export type Me = {
   first_name: string;
   last_name: string;
   mfa_enrolled: boolean;
+  platform_roles: string[];
   schools: { slug: string; name: string; roles: string[] }[];
+};
+
+export type Registration = {
+  id: string;
+  school_name: string;
+  slug: string;
+  school_type: string;
+  region: string;
+  town: string;
+  phone: string;
+  expected_pupils: number;
+  status: "pending" | "approved" | "rejected" | "failed";
+  status_label: string;
+  decision_note: string;
+  school_slug: string | null;
+  created_at: string;
 };
 
 export type Term = {

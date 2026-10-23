@@ -50,11 +50,23 @@ class IsTenantMember(BasePermission):
         return bool(load_membership(request))
 
 
+def mfa_enrolled(user: Any) -> bool:
+    """A passkey or TOTP authenticator is enrolled; allauth then demands it at every sign-in."""
+    return (
+        Authenticator.objects.filter(user=user)
+        .exclude(type=Authenticator.Type.RECOVERY_CODES)
+        .exists()
+    )
+
+
+MFA_ENROLLMENT_REQUIRED = {
+    "detail": "Set up a passkey or authenticator app to continue.",
+    "code": "mfa_enrollment_required",
+}
+
+
 class MFAEnrolledForStaff(BasePermission):
-    message = {  # type: ignore[assignment]
-        "detail": "Set up a passkey or authenticator app to continue.",
-        "code": "mfa_enrollment_required",
-    }
+    message = MFA_ENROLLMENT_REQUIRED  # type: ignore[assignment]
 
     def has_permission(self, request: Request, view: Any) -> bool:
         if getattr(view, "tenant_scoped", True) is False:
@@ -62,11 +74,52 @@ class MFAEnrolledForStaff(BasePermission):
         roles = load_membership(request)
         if not roles & settings.MFA_REQUIRED_ROLES:
             return True
-        return (
-            Authenticator.objects.filter(user=request.user)
-            .exclude(type=Authenticator.Type.RECOVERY_CODES)
-            .exists()
+        return mfa_enrolled(request.user)
+
+
+class HasVerifiedEmail(BasePermission):
+    """The account's email address has been verified (for actions outside any school,
+    such as asking to register one)."""
+
+    message = {  # type: ignore[assignment]
+        "detail": "Verify your email address first.",
+        "code": "email_unverified",
+    }
+
+    def has_permission(self, request: Request, view: Any) -> bool:
+        from allauth.account.models import EmailAddress
+
+        user = request.user
+        return bool(
+            user
+            and user.is_authenticated
+            and EmailAddress.objects.filter(
+                user=user, email__iexact=user.email, verified=True
+            ).exists()
         )
+
+
+class IsPlatformStaff(BasePermission):
+    """Platform (Super Admin) endpoints. Needs an active ``PlatformStaff`` row with
+    one of the view's ``platform_roles``, and MFA. School memberships and
+    ``is_superuser`` count for nothing here."""
+
+    message = "This is for Nex Edu platform staff only."
+
+    def has_permission(self, request: Request, view: Any) -> bool:
+        from control_plane.models import PlatformStaff
+
+        user = request.user
+        if not (user and user.is_authenticated):
+            return False
+        allowed = getattr(view, "platform_roles", ())
+        staff = PlatformStaff.objects.filter(user=user, is_active=True).first()
+        if staff is None or staff.role not in allowed:
+            return False
+        if not mfa_enrolled(user):
+            self.message = MFA_ENROLLMENT_REQUIRED  # type: ignore[assignment]
+            return False
+        return True
 
 
 class HasRequiredPermission(BasePermission):

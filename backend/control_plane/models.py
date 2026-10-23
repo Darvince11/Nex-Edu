@@ -61,6 +61,9 @@ class User(AbstractUser):
     username = None  # type: ignore[assignment]
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True)
+    # Consent to the terms and privacy notice at sign-up (Act 843): when, and which version.
+    terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    terms_version = models.CharField(max_length=20, blank=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: ClassVar[list[str]] = []
@@ -146,6 +149,150 @@ class Membership(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} → {self.tenant.slug} as {self.role}"
+
+
+class GhanaRegion(models.TextChoices):
+    AHAFO = "ahafo", "Ahafo"
+    ASHANTI = "ashanti", "Ashanti"
+    BONO = "bono", "Bono"
+    BONO_EAST = "bono_east", "Bono East"
+    CENTRAL = "central", "Central"
+    EASTERN = "eastern", "Eastern"
+    GREATER_ACCRA = "greater_accra", "Greater Accra"
+    NORTH_EAST = "north_east", "North East"
+    NORTHERN = "northern", "Northern"
+    OTI = "oti", "Oti"
+    SAVANNAH = "savannah", "Savannah"
+    UPPER_EAST = "upper_east", "Upper East"
+    UPPER_WEST = "upper_west", "Upper West"
+    VOLTA = "volta", "Volta"
+    WESTERN = "western", "Western"
+    WESTERN_NORTH = "western_north", "Western North"
+
+
+class SchoolRegistration(models.Model):
+    """A school owner's request for a workspace. Platform staff review every one
+    (``manage.py review_registration``) before any school database is created, and
+    the owner gets their membership only after provisioning succeeds."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Under review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Not approved"
+        FAILED = "failed", "Setup failed"
+
+    class SchoolType(models.TextChoices):
+        KG = "kg", "Kindergarten only"
+        PRIMARY = "primary", "KG and primary (Basic 1-6)"
+        BASIC = "basic", "KG, primary and JHS"
+        JHS = "jhs", "Junior High only"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="school_registrations")
+    school_name = models.CharField(max_length=200)
+    slug = models.CharField(max_length=40, validators=[TENANT_SLUG_VALIDATOR])
+    school_type = models.CharField(max_length=10, choices=SchoolType.choices)
+    region = models.CharField(max_length=20, choices=GhanaRegion.choices)
+    town = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    expected_pupils = models.PositiveIntegerField()
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    # Set for reviewers only; never shown to the applicant.
+    possible_duplicate = models.BooleanField(default=False)
+    review_note = models.CharField(max_length=500, blank=True)
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    tenant = models.OneToOneField(
+        Tenant, on_delete=models.SET_NULL, null=True, blank=True, related_name="registration"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering: ClassVar = ["-created_at"]
+        constraints: ClassVar = [
+            # One open request per owner: a retried submission can't create a second one.
+            models.UniqueConstraint(
+                fields=["owner"],
+                condition=models.Q(status="pending"),
+                name="one_pending_registration_per_owner",
+            ),
+            # A subdomain is held by at most one live request.
+            models.UniqueConstraint(
+                fields=["slug"],
+                condition=models.Q(status__in=["pending", "approved"]),
+                name="uniq_live_registration_slug",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.school_name} ({self.slug}, {self.status})"
+
+
+class PlatformRole(models.TextChoices):
+    SUPER_ADMIN = "super_admin", "Super admin"
+    SUPPORT = "support", "Support"
+    BILLING = "billing", "Billing"
+
+
+class PlatformStaff(models.Model):
+    """Nex Edu's own operators. Granted only by ``add_platform_staff``, never by
+    registration or school invitations. ``User.is_superuser`` grants nothing here."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="platform_staff")
+    role = models.CharField(max_length=20, choices=PlatformRole.choices)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.user} ({self.role})"
+
+
+class PlatformAuditQuerySet(models.QuerySet["PlatformAuditEvent"]):
+    def update(self, **kwargs: Any) -> int:
+        raise RuntimeError("Platform audit events cannot be updated.")
+
+    def delete(self) -> tuple[int, dict[str, int]]:
+        raise RuntimeError("Platform audit events cannot be deleted.")
+
+
+class PlatformAuditEvent(models.Model):
+    """Append-only, hash-chained log of platform-level actions (see ``control_plane.audit``)."""
+
+    seq = models.PositiveBigIntegerField(unique=True)
+    occurred_at = models.DateTimeField(db_index=True)
+    actor_id = models.UUIDField(null=True, blank=True, db_index=True)
+    actor_email = models.CharField(max_length=254, blank=True)
+    action = models.CharField(max_length=100, db_index=True)
+    tenant_id = models.UUIDField(null=True, blank=True, db_index=True)
+    target_type = models.CharField(max_length=100, blank=True)
+    target_id = models.CharField(max_length=64, blank=True)
+    ip = models.CharField(max_length=45, blank=True)
+    request_id = models.CharField(max_length=64, blank=True)
+    data = models.JSONField(null=True, blank=True)
+    reason = models.CharField(max_length=500, blank=True)
+    prev_hash = models.CharField(max_length=64)
+    hash = models.CharField(max_length=64, unique=True)
+
+    objects = PlatformAuditQuerySet.as_manager()
+
+    class Meta:
+        ordering: ClassVar = ["-seq"]
+
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        if not self._state.adding:
+            raise RuntimeError("Platform audit events cannot be updated.")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args: Any, **kwargs: Any) -> tuple[int, dict[str, int]]:
+        raise RuntimeError("Platform audit events cannot be deleted.")
+
+
+class PlatformAuditHead(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1)
+    last_seq = models.PositiveBigIntegerField(default=0)
+    last_hash = models.CharField(max_length=64, default="0" * 64)
 
 
 class TenantMigrationRun(models.Model):

@@ -1,5 +1,6 @@
 /**
- * django-allauth headless "browser" client: email/password, TOTP, passkeys.
+ * django-allauth headless "browser" client: sign-up with email codes,
+ * email/password, TOTP, passkeys, password reset.
  * Responses use the envelope { status, data, meta }. A 401 that lists pending
  * flows (e.g. "mfa_authenticate") means another step is needed.
  */
@@ -40,7 +41,12 @@ async function call(method: "GET" | "POST" | "DELETE", path: string, body?: unkn
     },
     body: body ? JSON.stringify(body) : undefined,
   });
-  return (await response.json()) as AuthResponse;
+  try {
+    return (await response.json()) as AuthResponse;
+  } catch {
+    // Not JSON (a proxy error page, say): report it like any other failure.
+    return { status: response.status, errors: [{ message: "", code: "unavailable" }] };
+  }
 }
 
 export const pendingFlow = (r: AuthResponse) => r.data?.flows?.find((f) => f.is_pending)?.id;
@@ -55,6 +61,19 @@ export const reauthenticate = (password: string) => call("POST", "/auth/reauthen
 export const resetPassword = (key: string, password: string) =>
   call("POST", "/auth/password/reset", { key, password });
 export const requestPasswordReset = (email: string) => call("POST", "/auth/password/request", { email });
+
+export type SignupDetails = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  accept_terms: boolean;
+  /** Honeypot: always empty for people. */
+  website: string;
+};
+export const signup = (details: SignupDetails) => call("POST", "/auth/signup", details);
+export const verifyEmail = (code: string) => call("POST", "/auth/email/verify", { key: code });
+export const resendEmailCode = () => call("POST", "/auth/email/verify/resend");
 
 export async function loginWithPasskey(): Promise<AuthResponse> {
   const options = await call("GET", "/auth/webauthn/login");

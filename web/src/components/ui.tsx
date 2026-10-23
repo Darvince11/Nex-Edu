@@ -128,7 +128,7 @@ const BADGE_TONES: Record<string, string> = {
   green: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200",
   amber: "bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200",
   red: "bg-red-100 text-red-900 dark:bg-red-950 dark:text-red-200",
-  blue: "bg-sky-100 text-sky-900 dark:bg-sky-950 dark:text-sky-200",
+  blue: "bg-brand/10 text-brand-strong dark:bg-brand/25 dark:text-brand-sky",
   grey: "bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200",
 };
 
@@ -175,7 +175,7 @@ export function Alert({
   children: ReactNode;
 }) {
   const styles = {
-    info: "bg-sky-50 text-sky-900 dark:bg-sky-950 dark:text-sky-100",
+    info: "bg-brand/5 text-brand-navy dark:bg-brand/20 dark:text-neutral-100",
     error: "bg-red-50 text-red-900 dark:bg-red-950 dark:text-red-100",
     success: "bg-emerald-50 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-100",
     warning: "bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100",

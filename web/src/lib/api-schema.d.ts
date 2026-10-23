@@ -4,407 +4,6158 @@
  */
 
 export interface paths {
-  "/api/v1/audit/events/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/academics/arms/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_arms_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_arms_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["v1_audit_events_list"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/audit/verify/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/academics/arms/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_arms_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_academics_arms_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_academics_arms_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_academics_arms_partial_update"];
+        trace?: never;
     };
-    get: operations["v1_audit_verify_retrieve"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/me/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/academics/assignments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_assignments_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_assignments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** @description The signed-in user and the schools they belong to. Needs no school selected. */
-    get: operations["v1_me_retrieve"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/students/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/academics/assignments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_assignments_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_academics_assignments_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_academics_assignments_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_academics_assignments_partial_update"];
+        trace?: never;
     };
-    get: operations["v1_students_list"];
-    put?: never;
-    post: operations["v1_students_create"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/students/{id}/": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/v1/academics/levels/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_academics_levels_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
-    get: operations["v1_students_retrieve"];
-    /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
-    put: operations["v1_students_update"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
-    patch: operations["v1_students_partial_update"];
-    trace?: never;
-  };
+    "/api/v1/academics/levels/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["v1_academics_levels_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["v1_academics_levels_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/academics/periods/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        get: operations["v1_academics_periods_list"];
+        put?: never;
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        post: operations["v1_academics_periods_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/periods/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        get: operations["v1_academics_periods_retrieve"];
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        put: operations["v1_academics_periods_update"];
+        post?: never;
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        delete: operations["v1_academics_periods_destroy"];
+        options?: never;
+        head?: never;
+        /** @description The timetable. Writes are checked for class and teacher clashes. */
+        patch: operations["v1_academics_periods_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/academics/sessions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_sessions_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_sessions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/sessions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_sessions_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_academics_sessions_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_academics_sessions_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_academics_sessions_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/academics/sessions/{id}/set_current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_sessions_set_current_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/subjects/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_subjects_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_subjects_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/subjects/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_subjects_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_academics_subjects_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_academics_subjects_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_academics_subjects_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/academics/terms/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_terms_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_terms_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/terms/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_terms_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_academics_terms_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_academics_terms_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_academics_terms_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/academics/terms/{id}/set_current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_academics_terms_set_current_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/academics/terms/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_academics_terms_current_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admissions/applications/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_admissions_applications_list"];
+        put?: never;
+        post: operations["v1_admissions_applications_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admissions/applications/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_admissions_applications_retrieve"];
+        put: operations["v1_admissions_applications_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["v1_admissions_applications_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/admissions/applications/{id}/change_status/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_admissions_applications_change_status_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admissions/applications/{id}/enrol/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_admissions_applications_enrol_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/components/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_assessments_components_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_assessments_components_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/components/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_assessments_components_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_assessments_components_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_assessments_components_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_assessments_components_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/assessments/grade-bands/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_assessments_grade_bands_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_assessments_grade_bands_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/grade-bands/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_assessments_grade_bands_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_assessments_grade_bands_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_assessments_grade_bands_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_assessments_grade_bands_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/assessments/report-cards/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Staff see drafts for students in their scope; parents and students see only
+         *     published cards for themselves / their children.
+         */
+        get: operations["v1_assessments_report_cards_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/report-cards/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Staff see drafts for students in their scope; parents and students see only
+         *     published cards for themselves / their children.
+         */
+        get: operations["v1_assessments_report_cards_retrieve"];
+        /**
+         * @description Staff see drafts for students in their scope; parents and students see only
+         *     published cards for themselves / their children.
+         */
+        put: operations["v1_assessments_report_cards_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Staff see drafts for students in their scope; parents and students see only
+         *     published cards for themselves / their children.
+         */
+        patch: operations["v1_assessments_report_cards_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/assessments/report-cards/{id}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Staff see drafts for students in their scope; parents and students see only
+         *     published cards for themselves / their children.
+         */
+        get: operations["v1_assessments_report_cards_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/results/compute/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_assessments_results_compute_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/results/publish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_assessments_results_publish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/scores/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description GET ?arm=&subject=&term= returns the grid; POST saves changed cells. */
+        get: operations["v1_assessments_scores_retrieve"];
+        put?: never;
+        /** @description GET ?arm=&subject=&term= returns the grid; POST saves changed cells. */
+        post: operations["v1_assessments_scores_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assessments/scores/amend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_assessments_scores_amend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/register/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description GET ?arm=&date= returns the class list with any statuses already taken.
+         *     POST submits the register; safe to retry with the same ``batch_id`` (offline sync).
+         */
+        get: operations["v1_attendance_register_retrieve"];
+        put?: never;
+        /**
+         * @description GET ?arm=&date= returns the class list with any statuses already taken.
+         *     POST submits the register; safe to retry with the same ``batch_id`` (offline sync).
+         */
+        post: operations["v1_attendance_register_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_attendance_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/events/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_audit_events_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_audit_verify_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/announcements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_communication_announcements_list"];
+        put?: never;
+        post: operations["v1_communication_announcements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/announcements/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_communication_announcements_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/announcements/{id}/publish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_communication_announcements_publish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/deliveries/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_communication_deliveries_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/deliveries/usage/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_communication_deliveries_usage_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/notifications/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The signed-in user's inbox in the current school. */
+        get: operations["v1_communication_notifications_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/notifications/{id}/read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description The signed-in user's inbox in the current school. */
+        post: operations["v1_communication_notifications_read_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/notifications/read_all/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description The signed-in user's inbox in the current school. */
+        post: operations["v1_communication_notifications_read_all_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/communication/notifications/unread_count/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The signed-in user's inbox in the current school. */
+        get: operations["v1_communication_notifications_unread_count_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/fee-items/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_finance_fee_items_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_finance_fee_items_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/fee-items/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_finance_fee_items_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_finance_fee_items_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_finance_fee_items_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_finance_fee_items_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/finance/fee-schedules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_finance_fee_schedules_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_finance_fee_schedules_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/fee-schedules/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_finance_fee_schedules_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_finance_fee_schedules_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_finance_fee_schedules_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_finance_fee_schedules_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_invoices_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_invoices_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/{id}/discount/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_finance_invoices_discount_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/{id}/pay/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Start an online payment (mobile money or card). Requires an Idempotency-Key header. */
+        post: operations["v1_finance_invoices_pay_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/{id}/record_payment/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_finance_invoices_record_payment_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/{id}/void/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_finance_invoices_void_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/invoices/generate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_finance_invoices_generate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/payments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_payments_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/payments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_payments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/payments/{id}/receipt/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_payments_receipt_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/payments/{id}/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Called by the payment-return page; checks status with the provider now. */
+        post: operations["v1_finance_payments_verify_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finance/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_finance_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The signed-in user and the schools they belong to. Needs no school selected. */
+        get: operations["v1_me_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_members_list"];
+        put?: never;
+        post: operations["v1_members_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/activate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_members_activate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/deactivate/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_members_deactivate_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/resend_invite/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["v1_members_resend_invite_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Every school on the platform: metadata only, never school records. */
+        get: operations["v1_platform_tenants_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/admissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The school's public online admission form (on its own subdomain).
+         *
+         *     GET returns the form options; POST submits. Rate-limited per IP, with a
+         *     honeypot field to drop bot submissions silently.
+         */
+        get: operations["v1_public_admissions_retrieve"];
+        put?: never;
+        /**
+         * @description The school's public online admission form (on its own subdomain).
+         *
+         *     GET returns the form options; POST submits. Rate-limited per IP, with a
+         *     honeypot field to drop bot submissions silently.
+         */
+        post: operations["v1_public_admissions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_registrations_list"];
+        put?: never;
+        post: operations["v1_registrations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/registrations/slug-check/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_registrations_slug_check_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/school/messaging-settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_school_messaging_settings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["v1_school_messaging_settings_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/school/payment-settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_school_payment_settings_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["v1_school_payment_settings_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/school/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_school_profile_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["v1_school_profile_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/staff/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_staff_list"];
+        put?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        post: operations["v1_staff_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/staff/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description CRUD where every write is recorded in the audit log. */
+        get: operations["v1_staff_retrieve"];
+        /** @description CRUD where every write is recorded in the audit log. */
+        put: operations["v1_staff_update"];
+        post?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        delete: operations["v1_staff_destroy"];
+        options?: never;
+        head?: never;
+        /** @description CRUD where every write is recorded in the audit log. */
+        patch: operations["v1_staff_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/students/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_students_list"];
+        put?: never;
+        post: operations["v1_students_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
+        get: operations["v1_students_retrieve"];
+        /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
+        put: operations["v1_students_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Students outside the user's scope return 404, so their existence isn't revealed. */
+        patch: operations["v1_students_partial_update"];
+        trace?: never;
+    };
+    "/api/v1/students/{id}/guardians/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["v1_students_guardians_retrieve"];
+        put?: never;
+        post: operations["v1_students_guardians_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/{student_id}/attendance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description A student's records and totals for a term. Parents see only their children. */
+        get: operations["v1_students_attendance_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/students/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Upload a CSV or Excel (.xlsx) file. ``dry_run=1`` validates without writing. */
+        post: operations["v1_students_import_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/flutterwave/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Signature checked here; crediting happens on the payments queue after a
+         *     fresh verify call to the provider.
+         */
+        post: operations["v1_webhooks_flutterwave_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/webhooks/paystack/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Signature checked here; crediting happens on the payments queue after a
+         *     fresh verify call to the provider.
+         */
+        post: operations["v1_webhooks_paystack_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    AuditEvent: {
-      /** Format: int64 */
-      seq: number;
-      /** Format: date-time */
-      occurred_at: string;
-      /** Format: uuid */
-      actor_id?: string | null;
-      actor_email?: string;
-      action: string;
-      target_type?: string;
-      target_id?: string;
-      ip?: string;
-      request_id?: string;
-      before?: unknown | null;
-      after?: unknown | null;
-      reason?: string;
-      hash: string;
+    schemas: {
+        AmendRequest: {
+            /** Format: uuid */
+            student: string;
+            subject: number;
+            term: number;
+            component: number;
+            /** Format: decimal */
+            score: string;
+            reason: string;
+        };
+        Announcement: {
+            /** Format: uuid */
+            readonly id: string;
+            title: string;
+            body: string;
+            audience: components["schemas"]["AudienceEnum"];
+            level?: number | null;
+            /** Format: uuid */
+            arm?: string | null;
+            channels?: components["schemas"]["ChannelsEnum"][];
+            readonly status: components["schemas"]["AnnouncementStatusEnum"];
+            /** Format: uuid */
+            readonly created_by: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly published_at: string | null;
+            readonly recipient_count: number;
+        };
+        AnnouncementRequest: {
+            title: string;
+            body: string;
+            audience: components["schemas"]["AudienceEnum"];
+            level?: number | null;
+            /** Format: uuid */
+            arm?: string | null;
+            channels?: components["schemas"]["ChannelsEnum"][];
+        };
+        /**
+         * @description * `draft` - Draft
+         *     * `published` - Published
+         * @enum {string}
+         */
+        AnnouncementStatusEnum: "draft" | "published";
+        Application: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly reference: string;
+            desired_level: number;
+            session?: number | null;
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            gender: string;
+            previous_school?: string;
+            guardian_name: string;
+            guardian_phone: string;
+            guardian_email?: string;
+            guardian_relationship?: string;
+            address?: string;
+            readonly desired_level_name: string;
+            readonly status: components["schemas"]["ApplicationStatusEnum"];
+            readonly source: components["schemas"]["SourceEnum"];
+            review_notes?: string;
+            /** Format: decimal */
+            entrance_score?: string | null;
+            /**
+             * Format: uuid
+             * @description Set once enrolled
+             */
+            readonly student_id: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        ApplicationRequest: {
+            desired_level: number;
+            session?: number | null;
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            gender: string;
+            previous_school?: string;
+            guardian_name: string;
+            guardian_phone: string;
+            guardian_email?: string;
+            guardian_relationship?: string;
+            address?: string;
+            review_notes?: string;
+            /** Format: decimal */
+            entrance_score?: string | null;
+        };
+        /**
+         * @description * `submitted` - Submitted
+         *     * `under_review` - Under Review
+         *     * `offered` - Offered
+         *     * `rejected` - Rejected
+         *     * `enrolled` - Enrolled
+         *     * `withdrawn` - Withdrawn
+         * @enum {string}
+         */
+        ApplicationStatusEnum: "submitted" | "under_review" | "offered" | "rejected" | "enrolled" | "withdrawn";
+        Arm: {
+            /** Format: uuid */
+            readonly id: string;
+            level: number;
+            readonly level_name: string;
+            /** @default A */
+            name: string;
+            readonly label: string;
+        };
+        ArmRequest: {
+            level: number;
+            /** @default A */
+            name: string;
+        };
+        ArmTermRequest: {
+            /** Format: uuid */
+            arm: string;
+            term: number;
+        };
+        Assignment: {
+            readonly id: number;
+            /** Format: uuid */
+            teacher_user_id: string;
+            /** Format: uuid */
+            arm: string;
+            readonly arm_label: string;
+            subject?: number | null;
+            readonly subject_name: string;
+            is_form_teacher?: boolean;
+        };
+        AssignmentRequest: {
+            /** Format: uuid */
+            teacher_user_id: string;
+            /** Format: uuid */
+            arm: string;
+            subject?: number | null;
+            is_form_teacher?: boolean;
+        };
+        /**
+         * @description * `everyone` - Everyone
+         *     * `staff` - Staff
+         *     * `parents` - Parents
+         *     * `students` - Students
+         *     * `level_parents` - Level Parents
+         *     * `arm_parents` - Arm Parents
+         * @enum {string}
+         */
+        AudienceEnum: "everyone" | "staff" | "parents" | "students" | "level_parents" | "arm_parents";
+        AuditEvent: {
+            /** Format: int64 */
+            seq: number;
+            /** Format: date-time */
+            occurred_at: string;
+            /** Format: uuid */
+            actor_id?: string | null;
+            actor_email?: string;
+            action: string;
+            target_type?: string;
+            target_id?: string;
+            ip?: string;
+            request_id?: string;
+            before?: unknown | null;
+            after?: unknown | null;
+            reason?: string;
+            hash: string;
+        };
+        /** @enum {unknown} */
+        BlankEnum: "";
+        ChainReport: {
+            valid: boolean;
+            checked: number;
+            first_bad_seq: number | null;
+            reason: string;
+        };
+        /**
+         * @description * `in_app` - In App
+         *     * `email` - Email
+         *     * `sms` - Sms
+         *     * `whatsapp` - Whatsapp
+         * @enum {string}
+         */
+        ChannelEnum: "in_app" | "email" | "sms" | "whatsapp";
+        /**
+         * @description * `email` - email
+         *     * `sms` - sms
+         *     * `whatsapp` - whatsapp
+         * @enum {string}
+         */
+        ChannelsEnum: "email" | "sms" | "whatsapp";
+        Component: {
+            readonly id: number;
+            name: string;
+            code: string;
+            /** Format: decimal */
+            max_score: string;
+            /** Format: int64 */
+            order?: number;
+            is_active?: boolean;
+        };
+        ComponentRequest: {
+            name: string;
+            code: string;
+            /** Format: decimal */
+            max_score: string;
+            /** Format: int64 */
+            order?: number;
+            is_active?: boolean;
+        };
+        Delivery: {
+            /** Format: uuid */
+            readonly id: string;
+            channel: components["schemas"]["ChannelEnum"];
+            to: string;
+            kind: string;
+            status?: components["schemas"]["DeliveryStatusEnum"];
+            provider?: string;
+            error?: string;
+            /** Format: int64 */
+            attempts?: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            sent_at?: string | null;
+        };
+        /**
+         * @description * `queued` - Queued
+         *     * `sent` - Sent
+         *     * `failed` - Failed
+         *     * `skipped` - Skipped
+         * @enum {string}
+         */
+        DeliveryStatusEnum: "queued" | "sent" | "failed" | "skipped";
+        EntryRequest: {
+            /** Format: uuid */
+            student: string;
+            status: components["schemas"]["EntryStatusEnum"];
+            /** @default  */
+            note: string;
+        };
+        /**
+         * @description * `present` - Present
+         *     * `absent` - Absent
+         *     * `late` - Late
+         *     * `excused` - Excused
+         * @enum {string}
+         */
+        EntryStatusEnum: "present" | "absent" | "late" | "excused";
+        FeeItem: {
+            readonly id: number;
+            name: string;
+            description?: string;
+            is_active?: boolean;
+        };
+        FeeItemRequest: {
+            name: string;
+            description?: string;
+            is_active?: boolean;
+        };
+        FeeSchedule: {
+            readonly id: number;
+            term: number;
+            level?: number | null;
+            readonly level_name: string;
+            item: number;
+            readonly item_name: string;
+            /** Format: int64 */
+            amount_pesewas: number;
+            is_optional?: boolean;
+        };
+        FeeScheduleRequest: {
+            term: number;
+            level?: number | null;
+            item: number;
+            /** Format: int64 */
+            amount_pesewas: number;
+            is_optional?: boolean;
+        };
+        /**
+         * @description * `female` - Female
+         *     * `male` - Male
+         * @enum {string}
+         */
+        GenderEnum: "female" | "male";
+        GradeBand: {
+            readonly id: number;
+            /** @default  */
+            section: components["schemas"]["SectionEnum"] | components["schemas"]["BlankEnum"];
+            grade: string;
+            /** Format: decimal */
+            min_score: string;
+            /** Format: decimal */
+            max_score: string;
+            remark: string;
+            /** Format: decimal */
+            points?: string;
+        };
+        GradeBandRequest: {
+            /** @default  */
+            section: components["schemas"]["SectionEnum"] | components["schemas"]["BlankEnum"];
+            grade: string;
+            /** Format: decimal */
+            min_score: string;
+            /** Format: decimal */
+            max_score: string;
+            remark: string;
+            /** Format: decimal */
+            points?: string;
+        };
+        Guardian: {
+            readonly id: number;
+            full_name?: string;
+            phone?: string;
+            email?: string;
+            relationship?: string;
+            is_primary?: boolean;
+            receives_sms?: boolean;
+            /** Format: uuid */
+            readonly guardian_user_id: string | null;
+        };
+        GuardianRequest: {
+            full_name?: string;
+            phone?: string;
+            email?: string;
+            relationship?: string;
+            is_primary?: boolean;
+            receives_sms?: boolean;
+        };
+        Invoice: {
+            /** Format: uuid */
+            readonly id: string;
+            number: string;
+            /** Format: uuid */
+            student: string;
+            readonly student_name: string;
+            readonly admission_number: string;
+            term: number;
+            readonly term_label: string;
+            /** @default issued */
+            status: components["schemas"]["InvoiceStatusEnum"];
+            /** Format: int64 */
+            total_pesewas: number;
+            /** Format: int64 */
+            paid_pesewas?: number;
+            readonly balance_pesewas: number;
+            /** Format: date */
+            due_date?: string | null;
+            /** Format: date-time */
+            issued_at: string;
+            readonly lines: components["schemas"]["InvoiceLine"][];
+            readonly payments: {
+                [key: string]: unknown;
+            }[];
+        };
+        InvoiceLine: {
+            readonly id: number;
+            description: string;
+            /**
+             * Format: int64
+             * @description Negative for a discount or scholarship
+             */
+            amount_pesewas: number;
+        };
+        InvoiceLineRequest: {
+            description: string;
+            /**
+             * Format: int64
+             * @description Negative for a discount or scholarship
+             */
+            amount_pesewas: number;
+        };
+        InvoiceRequest: {
+            number: string;
+            /** Format: uuid */
+            student: string;
+            term: number;
+            /** @default issued */
+            status: components["schemas"]["InvoiceStatusEnum"];
+            /** Format: int64 */
+            total_pesewas: number;
+            /** Format: int64 */
+            paid_pesewas?: number;
+            /** Format: date */
+            due_date?: string | null;
+            /** Format: date-time */
+            issued_at: string;
+        };
+        /**
+         * @description * `issued` - Issued
+         *     * `part_paid` - Part Paid
+         *     * `paid` - Paid
+         *     * `void` - Void
+         * @enum {string}
+         */
+        InvoiceStatusEnum: "issued" | "part_paid" | "paid" | "void";
+        Level: {
+            readonly id: number;
+            readonly name: string;
+            readonly section: components["schemas"]["SectionEnum"];
+            readonly order: number;
+            /** @description Off if the school doesn't run it */
+            is_active?: boolean;
+        };
+        LevelRequest: {
+            /** @description Off if the school doesn't run it */
+            is_active?: boolean;
+        };
+        Me: {
+            /** Format: uuid */
+            id: string;
+            /** Format: email */
+            email: string;
+            first_name: string;
+            last_name: string;
+            mfa_enrolled: boolean;
+            platform_roles: string[];
+            schools: components["schemas"]["School"][];
+        };
+        Member: {
+            readonly id: number;
+            /** Format: uuid */
+            user: string;
+            /** Format: email */
+            readonly email: string;
+            readonly first_name: string;
+            readonly last_name: string;
+            readonly phone: string;
+            role: components["schemas"]["RoleEnum"];
+            readonly role_label: string;
+            is_active?: boolean;
+            readonly has_password: boolean;
+            readonly mfa_enrolled: boolean;
+            /** Format: date-time */
+            readonly last_login: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        MemberRequest: {
+            /** Format: uuid */
+            user: string;
+            role: components["schemas"]["RoleEnum"];
+            is_active?: boolean;
+        };
+        MessagingSettings: {
+            /** @description Registered sender ID */
+            sms_sender_id?: string;
+            /** Format: int64 */
+            sms_monthly_limit?: number;
+            notify_absence_by_sms?: boolean;
+            notify_results_by_sms?: boolean;
+            whatsapp_enabled?: boolean;
+        };
+        /**
+         * @description * `paystack` - Paystack
+         *     * `flutterwave` - Flutterwave
+         *     * `cash` - Cash
+         *     * `bank_transfer` - Bank Transfer
+         *     * `pos` - Pos
+         * @enum {string}
+         */
+        MethodEnum: "paystack" | "flutterwave" | "cash" | "bank_transfer" | "pos";
+        Notification: {
+            /** Format: uuid */
+            readonly id: string;
+            kind: string;
+            title: string;
+            body: string;
+            data?: unknown;
+            /** Format: date-time */
+            read_at?: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        NotificationRequest: {
+            kind: string;
+            title: string;
+            body: string;
+            data?: unknown;
+            /** Format: date-time */
+            read_at?: string | null;
+        };
+        /**
+         * @description * `1` - First term
+         *     * `2` - Second term
+         *     * `3` - Third term
+         * @enum {integer}
+         */
+        NumberEnum: 1 | 2 | 3;
+        PaginatedAnnouncementList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Announcement"][];
+        };
+        PaginatedAuditEventList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["AuditEvent"][];
+        };
+        PaginatedDeliveryList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Delivery"][];
+        };
+        PaginatedNotificationList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Notification"][];
+        };
+        PaginatedPlatformTenantList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["PlatformTenant"][];
+        };
+        PaginatedStudentList: {
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+             */
+            previous?: string | null;
+            results: components["schemas"]["Student"][];
+        };
+        PatchedApplicationRequest: {
+            desired_level?: number;
+            session?: number | null;
+            first_name?: string;
+            middle_name?: string;
+            last_name?: string;
+            /** Format: date */
+            date_of_birth?: string;
+            gender?: string;
+            previous_school?: string;
+            guardian_name?: string;
+            guardian_phone?: string;
+            guardian_email?: string;
+            guardian_relationship?: string;
+            address?: string;
+            review_notes?: string;
+            /** Format: decimal */
+            entrance_score?: string | null;
+        };
+        PatchedArmRequest: {
+            level?: number;
+            /** @default A */
+            name: string;
+        };
+        PatchedAssignmentRequest: {
+            /** Format: uuid */
+            teacher_user_id?: string;
+            /** Format: uuid */
+            arm?: string;
+            subject?: number | null;
+            is_form_teacher?: boolean;
+        };
+        PatchedComponentRequest: {
+            name?: string;
+            code?: string;
+            /** Format: decimal */
+            max_score?: string;
+            /** Format: int64 */
+            order?: number;
+            is_active?: boolean;
+        };
+        PatchedFeeItemRequest: {
+            name?: string;
+            description?: string;
+            is_active?: boolean;
+        };
+        PatchedFeeScheduleRequest: {
+            term?: number;
+            level?: number | null;
+            item?: number;
+            /** Format: int64 */
+            amount_pesewas?: number;
+            is_optional?: boolean;
+        };
+        PatchedGradeBandRequest: {
+            /** @default  */
+            section: components["schemas"]["SectionEnum"] | components["schemas"]["BlankEnum"];
+            grade?: string;
+            /** Format: decimal */
+            min_score?: string;
+            /** Format: decimal */
+            max_score?: string;
+            remark?: string;
+            /** Format: decimal */
+            points?: string;
+        };
+        PatchedLevelRequest: {
+            /** @description Off if the school doesn't run it */
+            is_active?: boolean;
+        };
+        PatchedMessagingSettingsRequest: {
+            /** @description Registered sender ID */
+            sms_sender_id?: string;
+            /** Format: int64 */
+            sms_monthly_limit?: number;
+            notify_absence_by_sms?: boolean;
+            notify_results_by_sms?: boolean;
+            whatsapp_enabled?: boolean;
+        };
+        PatchedPaymentSettingsRequest: {
+            online_payments_enabled?: boolean;
+            paystack_subaccount_code?: string;
+            flutterwave_subaccount_id?: string;
+            allow_part_payment?: boolean;
+            /** Format: int64 */
+            minimum_part_payment_pesewas?: number;
+            bank_transfer_instructions?: string;
+        };
+        PatchedPeriodRequest: {
+            term?: number;
+            /** Format: uuid */
+            arm?: string;
+            subject?: number;
+            /** Format: uuid */
+            teacher_user_id?: string | null;
+            weekday?: components["schemas"]["WeekdayEnum"];
+            /** Format: time */
+            starts_at?: string;
+            /** Format: time */
+            ends_at?: string;
+            room?: string;
+        };
+        PatchedReportCardRequest: {
+            form_teacher_comment?: string;
+            principal_comment?: string;
+        };
+        PatchedSchoolProfileRequest: {
+            name?: string;
+            motto?: string;
+            address?: string;
+            phone?: string;
+            email?: string;
+            website?: string;
+            principal_name?: string;
+            /** @description Used in admission numbers, e.g. NXE/2026/0001 */
+            admission_prefix?: string;
+            report_card_footer?: string;
+        };
+        PatchedSessionRequest: {
+            name?: string;
+            /** Format: date */
+            starts_on?: string;
+            /** Format: date */
+            ends_on?: string;
+        };
+        PatchedStaffRequest: {
+            /** Format: uuid */
+            user_id?: string | null;
+            staff_number?: string;
+            first_name?: string;
+            last_name?: string;
+            gender?: string;
+            phone?: string;
+            email?: string;
+            job_title?: string;
+            qualification?: string;
+            /** Format: date */
+            employment_date?: string | null;
+            is_active?: boolean;
+        };
+        PatchedStudentRequest: {
+            admission_number?: string;
+            first_name?: string;
+            middle_name?: string;
+            last_name?: string;
+            /** Format: date */
+            date_of_birth?: string;
+            gender?: components["schemas"]["GenderEnum"];
+            /** Format: uuid */
+            arm?: string | null;
+            status?: components["schemas"]["StudentStatusEnum"];
+            /** Format: date */
+            admitted_on?: string | null;
+            address?: string;
+            hometown?: string;
+            region?: string;
+        };
+        PatchedSubjectRequest: {
+            name?: string;
+            code?: string;
+            /** @description Sections that offer this subject; empty means all */
+            sections?: unknown;
+            is_active?: boolean;
+        };
+        PatchedTermRequest: {
+            session?: number;
+            number?: components["schemas"]["NumberEnum"];
+            /** Format: date */
+            starts_on?: string;
+            /** Format: date */
+            ends_on?: string;
+            /** Format: date */
+            next_term_begins?: string | null;
+        };
+        Payment: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            invoice: string;
+            readonly invoice_number: string;
+            readonly student_name: string;
+            method: components["schemas"]["MethodEnum"];
+            status?: components["schemas"]["PaymentStatusEnum"];
+            /**
+             * Format: int64
+             * @description Amount requested or recorded
+             */
+            amount_pesewas: number;
+            /** Format: int64 */
+            amount_received_pesewas?: number;
+            reference: string;
+            receipt_number?: string | null;
+            authorization_url?: string;
+            /** Format: date-time */
+            paid_at?: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+            note?: string;
+        };
+        PaymentRequest: {
+            /** Format: uuid */
+            invoice: string;
+            method: components["schemas"]["MethodEnum"];
+            status?: components["schemas"]["PaymentStatusEnum"];
+            /**
+             * Format: int64
+             * @description Amount requested or recorded
+             */
+            amount_pesewas: number;
+            /** Format: int64 */
+            amount_received_pesewas?: number;
+            reference: string;
+            receipt_number?: string | null;
+            authorization_url?: string;
+            /** Format: date-time */
+            paid_at?: string | null;
+            note?: string;
+        };
+        PaymentSettings: {
+            online_payments_enabled?: boolean;
+            paystack_subaccount_code?: string;
+            flutterwave_subaccount_id?: string;
+            allow_part_payment?: boolean;
+            /** Format: int64 */
+            minimum_part_payment_pesewas?: number;
+            bank_transfer_instructions?: string;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `success` - Success
+         *     * `failed` - Failed
+         *     * `abandoned` - Abandoned
+         * @enum {string}
+         */
+        PaymentStatusEnum: "pending" | "success" | "failed" | "abandoned";
+        Period: {
+            readonly id: number;
+            term: number;
+            /** Format: uuid */
+            arm: string;
+            readonly arm_label: string;
+            subject: number;
+            readonly subject_name: string;
+            /** Format: uuid */
+            teacher_user_id?: string | null;
+            weekday: components["schemas"]["WeekdayEnum"];
+            /** Format: time */
+            starts_at: string;
+            /** Format: time */
+            ends_at: string;
+            room?: string;
+        };
+        PeriodRequest: {
+            term: number;
+            /** Format: uuid */
+            arm: string;
+            subject: number;
+            /** Format: uuid */
+            teacher_user_id?: string | null;
+            weekday: components["schemas"]["WeekdayEnum"];
+            /** Format: time */
+            starts_at: string;
+            /** Format: time */
+            ends_at: string;
+            room?: string;
+        };
+        PlatformTenant: {
+            /** Format: uuid */
+            readonly id: string;
+            slug: string;
+            name: string;
+            status?: components["schemas"]["PlatformTenantStatusEnum"];
+            /** @description Receives schema migrations before other schools */
+            is_canary?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `provisioning` - Provisioning
+         *     * `active` - Active
+         *     * `suspended` - Suspended
+         *     * `failed` - Failed
+         *     * `offboarded` - Offboarded
+         * @enum {string}
+         */
+        PlatformTenantStatusEnum: "provisioning" | "active" | "suspended" | "failed" | "offboarded";
+        PublicApplicationRequest: {
+            desired_level: number;
+            session?: number | null;
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            gender: string;
+            previous_school?: string;
+            guardian_name: string;
+            guardian_phone: string;
+            guardian_email?: string;
+            guardian_relationship?: string;
+            address?: string;
+            website?: string;
+        };
+        /**
+         * @description * `ahafo` - Ahafo
+         *     * `ashanti` - Ashanti
+         *     * `bono` - Bono
+         *     * `bono_east` - Bono East
+         *     * `central` - Central
+         *     * `eastern` - Eastern
+         *     * `greater_accra` - Greater Accra
+         *     * `north_east` - North East
+         *     * `northern` - Northern
+         *     * `oti` - Oti
+         *     * `savannah` - Savannah
+         *     * `upper_east` - Upper East
+         *     * `upper_west` - Upper West
+         *     * `volta` - Volta
+         *     * `western` - Western
+         *     * `western_north` - Western North
+         * @enum {string}
+         */
+        RegionEnum: "ahafo" | "ashanti" | "bono" | "bono_east" | "central" | "eastern" | "greater_accra" | "north_east" | "northern" | "oti" | "savannah" | "upper_east" | "upper_west" | "volta" | "western" | "western_north";
+        RegisterRequest: {
+            /** Format: uuid */
+            arm: string;
+            /** Format: date */
+            date: string;
+            entries: components["schemas"]["EntryRequest"][];
+            /** Format: uuid */
+            batch_id?: string | null;
+            /** Format: date-time */
+            recorded_at?: string | null;
+        };
+        Registration: {
+            /** Format: uuid */
+            readonly id: string;
+            school_name: string;
+            slug: string;
+            school_type: components["schemas"]["SchoolTypeEnum"];
+            region: components["schemas"]["RegionEnum"];
+            town: string;
+            phone: string;
+            expected_pupils: number;
+            /** @default pending */
+            readonly status: components["schemas"]["RegistrationStatusEnum"];
+            readonly status_label: string;
+            readonly decision_note: string;
+            readonly school_slug: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        RegistrationRequest: {
+            school_name: string;
+            slug: string;
+            school_type: components["schemas"]["SchoolTypeEnum"];
+            region: components["schemas"]["RegionEnum"];
+            town: string;
+            phone: string;
+            expected_pupils: number;
+        };
+        /**
+         * @description * `pending` - Under review
+         *     * `approved` - Approved
+         *     * `rejected` - Not approved
+         *     * `failed` - Setup failed
+         * @enum {string}
+         */
+        RegistrationStatusEnum: "pending" | "approved" | "rejected" | "failed";
+        ReportCard: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly student: string;
+            readonly student_name: string;
+            readonly admission_number: string;
+            readonly term: number;
+            readonly term_label: string;
+            /** Format: uuid */
+            readonly arm: string;
+            readonly arm_label: string;
+            readonly lines: unknown;
+            /** Format: decimal */
+            readonly total_score: string;
+            /** Format: decimal */
+            readonly average: string;
+            readonly position: number | null;
+            readonly position_label: string;
+            readonly class_size: number;
+            /** @description JHS only: 4 core + best 2 other subjects (BECE style) */
+            readonly aggregate: number | null;
+            readonly days_present: number;
+            readonly days_open: number;
+            form_teacher_comment?: string;
+            principal_comment?: string;
+            readonly status: components["schemas"]["ReportCardStatusEnum"];
+            /** Format: date-time */
+            readonly computed_at: string;
+            /** Format: date-time */
+            readonly published_at: string | null;
+            readonly has_pdf: boolean;
+        };
+        ReportCardRequest: {
+            form_teacher_comment?: string;
+            principal_comment?: string;
+        };
+        /**
+         * @description * `draft` - Draft
+         *     * `published` - Published
+         *     * `withheld` - Withheld
+         * @enum {string}
+         */
+        ReportCardStatusEnum: "draft" | "published" | "withheld";
+        /**
+         * @description * `owner` - School owner / proprietor
+         *     * `principal` - Head teacher
+         *     * `admin` - School administrator
+         *     * `bursar` - Accountant / bursar
+         *     * `teacher` - Teacher
+         *     * `form_teacher` - Class teacher
+         *     * `librarian` - Librarian
+         *     * `warden` - Hostel warden
+         *     * `driver` - Driver
+         *     * `parent` - Parent / guardian
+         *     * `student` - Student
+         * @enum {string}
+         */
+        RoleEnum: "owner" | "principal" | "admin" | "bursar" | "teacher" | "form_teacher" | "librarian" | "warden" | "driver" | "parent" | "student";
+        School: {
+            slug: string;
+            name: string;
+            roles: string[];
+        };
+        SchoolProfile: {
+            name: string;
+            motto?: string;
+            address?: string;
+            phone?: string;
+            email?: string;
+            website?: string;
+            principal_name?: string;
+            /** @description Used in admission numbers, e.g. NXE/2026/0001 */
+            admission_prefix?: string;
+            report_card_footer?: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `kg` - Kindergarten only
+         *     * `primary` - KG and primary (Basic 1-6)
+         *     * `basic` - KG, primary and JHS
+         *     * `jhs` - Junior High only
+         * @enum {string}
+         */
+        SchoolTypeEnum: "kg" | "primary" | "basic" | "jhs";
+        ScoreEntryRequest: {
+            /** Format: uuid */
+            student: string;
+            component: number;
+            /** Format: decimal */
+            score: string | null;
+        };
+        ScoreSheetRequest: {
+            /** Format: uuid */
+            arm: string;
+            subject: number;
+            term: number;
+            entries: components["schemas"]["ScoreEntryRequest"][];
+        };
+        /**
+         * @description * `kg` - Kindergarten
+         *     * `lower_primary` - Lower primary (Basic 1-3)
+         *     * `upper_primary` - Upper primary (Basic 4-6)
+         *     * `jhs` - Junior High School
+         * @enum {string}
+         */
+        SectionEnum: "kg" | "lower_primary" | "upper_primary" | "jhs";
+        Session: {
+            readonly id: number;
+            name: string;
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            readonly is_current: boolean;
+        };
+        SessionRequest: {
+            name: string;
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+        };
+        SlugAvailability: {
+            available: boolean;
+            reason: string;
+        };
+        /**
+         * @description * `online` - Online
+         *     * `office` - Office
+         * @enum {string}
+         */
+        SourceEnum: "online" | "office";
+        Staff: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            user_id?: string | null;
+            staff_number: string;
+            first_name: string;
+            last_name: string;
+            gender?: string;
+            phone?: string;
+            email?: string;
+            job_title?: string;
+            qualification?: string;
+            /** Format: date */
+            employment_date?: string | null;
+            is_active?: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        StaffRequest: {
+            /** Format: uuid */
+            user_id?: string | null;
+            staff_number: string;
+            first_name: string;
+            last_name: string;
+            gender?: string;
+            phone?: string;
+            email?: string;
+            job_title?: string;
+            qualification?: string;
+            /** Format: date */
+            employment_date?: string | null;
+            is_active?: boolean;
+        };
+        Student: {
+            /** Format: uuid */
+            readonly id: string;
+            admission_number?: string;
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            gender: components["schemas"]["GenderEnum"];
+            /** Format: uuid */
+            arm?: string | null;
+            readonly arm_name: string | null;
+            status?: components["schemas"]["StudentStatusEnum"];
+            /** Format: date */
+            admitted_on?: string | null;
+            address?: string;
+            hometown?: string;
+            region?: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        StudentRequest: {
+            admission_number?: string;
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            gender: components["schemas"]["GenderEnum"];
+            /** Format: uuid */
+            arm?: string | null;
+            status?: components["schemas"]["StudentStatusEnum"];
+            /** Format: date */
+            admitted_on?: string | null;
+            address?: string;
+            hometown?: string;
+            region?: string;
+        };
+        /**
+         * @description * `active` - Active
+         *     * `graduated` - Graduated
+         *     * `withdrawn` - Withdrawn
+         *     * `suspended` - Suspended
+         * @enum {string}
+         */
+        StudentStatusEnum: "active" | "graduated" | "withdrawn" | "suspended";
+        Subject: {
+            readonly id: number;
+            name: string;
+            code: string;
+            /** @description Sections that offer this subject; empty means all */
+            sections?: unknown;
+            is_active?: boolean;
+        };
+        SubjectRequest: {
+            name: string;
+            code: string;
+            /** @description Sections that offer this subject; empty means all */
+            sections?: unknown;
+            is_active?: boolean;
+        };
+        Term: {
+            readonly id: number;
+            session: number;
+            number: components["schemas"]["NumberEnum"];
+            readonly label: string;
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            /** Format: date */
+            next_term_begins?: string | null;
+            readonly is_current: boolean;
+        };
+        TermRequest: {
+            session: number;
+            number: components["schemas"]["NumberEnum"];
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            /** Format: date */
+            next_term_begins?: string | null;
+        };
+        /**
+         * @description * `1` - Monday
+         *     * `2` - Tuesday
+         *     * `3` - Wednesday
+         *     * `4` - Thursday
+         *     * `5` - Friday
+         *     * `6` - Saturday
+         * @enum {integer}
+         */
+        WeekdayEnum: 1 | 2 | 3 | 4 | 5 | 6;
     };
-    ChainReport: {
-      valid: boolean;
-      checked: number;
-      first_bad_seq: number | null;
-      reason: string;
-    };
-    /**
-     * @description * `female` - Female
-     *     * `male` - Male
-     * @enum {string}
-     */
-    GenderEnum: "female" | "male";
-    Me: {
-      /** Format: uuid */
-      id: string;
-      /** Format: email */
-      email: string;
-      first_name: string;
-      last_name: string;
-      mfa_enrolled: boolean;
-      schools: components["schemas"]["School"][];
-    };
-    PaginatedAuditEventList: {
-      /**
-       * Format: uri
-       * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
-       */
-      next?: string | null;
-      /**
-       * Format: uri
-       * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
-       */
-      previous?: string | null;
-      results: components["schemas"]["AuditEvent"][];
-    };
-    PaginatedStudentList: {
-      /**
-       * Format: uri
-       * @example http://api.example.org/accounts/?cursor=cD00ODY%3D"
-       */
-      next?: string | null;
-      /**
-       * Format: uri
-       * @example http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
-       */
-      previous?: string | null;
-      results: components["schemas"]["Student"][];
-    };
-    PatchedStudentRequest: {
-      admission_number?: string;
-      first_name?: string;
-      middle_name?: string;
-      last_name?: string;
-      /** Format: date */
-      date_of_birth?: string;
-      gender?: components["schemas"]["GenderEnum"];
-      /** Format: uuid */
-      arm?: string | null;
-      status?: components["schemas"]["StatusEnum"];
-    };
-    School: {
-      slug: string;
-      name: string;
-      roles: string[];
-    };
-    /**
-     * @description * `active` - Active
-     *     * `graduated` - Graduated
-     *     * `withdrawn` - Withdrawn
-     *     * `suspended` - Suspended
-     * @enum {string}
-     */
-    StatusEnum: "active" | "graduated" | "withdrawn" | "suspended";
-    Student: {
-      /** Format: uuid */
-      readonly id: string;
-      admission_number: string;
-      first_name: string;
-      middle_name?: string;
-      last_name: string;
-      /** Format: date */
-      date_of_birth: string;
-      gender: components["schemas"]["GenderEnum"];
-      /** Format: uuid */
-      arm?: string | null;
-      readonly arm_name: string | null;
-      status?: components["schemas"]["StatusEnum"];
-      /** Format: date-time */
-      readonly created_at: string;
-      /** Format: date-time */
-      readonly updated_at: string;
-    };
-    StudentRequest: {
-      admission_number: string;
-      first_name: string;
-      middle_name?: string;
-      last_name: string;
-      /** Format: date */
-      date_of_birth: string;
-      gender: components["schemas"]["GenderEnum"];
-      /** Format: uuid */
-      arm?: string | null;
-      status?: components["schemas"]["StatusEnum"];
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  v1_audit_events_list: {
-    parameters: {
-      query?: {
-        /** @description The pagination cursor value. */
-        cursor?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    v1_academics_arms_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["PaginatedAuditEventList"];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Arm"][];
+                };
+            };
         };
-      };
     };
-  };
-  v1_audit_verify_retrieve: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    v1_academics_arms_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["ChainReport"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ArmRequest"];
+                "multipart/form-data": components["schemas"]["ArmRequest"];
+            };
         };
-      };
-    };
-  };
-  v1_me_retrieve: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Arm"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["Me"];
+    };
+    v1_academics_arms_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this class arm. */
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  v1_students_list: {
-    parameters: {
-      query?: {
-        /** @description The pagination cursor value. */
-        cursor?: string;
-        /** @description Number of results to return per page. */
-        page_size?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Arm"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["PaginatedStudentList"];
+    };
+    v1_academics_arms_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this class arm. */
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  v1_students_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StudentRequest"];
-        "application/x-www-form-urlencoded": components["schemas"]["StudentRequest"];
-        "multipart/form-data": components["schemas"]["StudentRequest"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ArmRequest"];
+                "multipart/form-data": components["schemas"]["ArmRequest"];
+            };
         };
-        content: {
-          "application/json": components["schemas"]["Student"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Arm"];
+                };
+            };
         };
-      };
     };
-  };
-  v1_students_retrieve: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    v1_academics_arms_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this class arm. */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["Student"];
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-      };
     };
-  };
-  v1_students_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["StudentRequest"];
-        "application/x-www-form-urlencoded": components["schemas"]["StudentRequest"];
-        "multipart/form-data": components["schemas"]["StudentRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    v1_academics_arms_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this class arm. */
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["Student"];
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedArmRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedArmRequest"];
+                "multipart/form-data": components["schemas"]["PatchedArmRequest"];
+            };
         };
-      };
-    };
-  };
-  v1_students_partial_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["PatchedStudentRequest"];
-        "application/x-www-form-urlencoded": components["schemas"]["PatchedStudentRequest"];
-        "multipart/form-data": components["schemas"]["PatchedStudentRequest"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Arm"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["Student"];
-        };
-      };
     };
-  };
+    v1_academics_assignments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"][];
+                };
+            };
+        };
+    };
+    v1_academics_assignments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignmentRequest"];
+                "multipart/form-data": components["schemas"]["AssignmentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
+    v1_academics_assignments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this teaching assignment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
+    v1_academics_assignments_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this teaching assignment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssignmentRequest"];
+                "multipart/form-data": components["schemas"]["AssignmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
+    v1_academics_assignments_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this teaching assignment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_academics_assignments_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this teaching assignment. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAssignmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAssignmentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAssignmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Assignment"];
+                };
+            };
+        };
+    };
+    v1_academics_levels_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"][];
+                };
+            };
+        };
+    };
+    v1_academics_levels_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this class level. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["LevelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LevelRequest"];
+                "multipart/form-data": components["schemas"]["LevelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"];
+                };
+            };
+        };
+    };
+    v1_academics_levels_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this class level. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedLevelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedLevelRequest"];
+                "multipart/form-data": components["schemas"]["PatchedLevelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Level"];
+                };
+            };
+        };
+    };
+    v1_academics_periods_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Period"][];
+                };
+            };
+        };
+    };
+    v1_academics_periods_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeriodRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PeriodRequest"];
+                "multipart/form-data": components["schemas"]["PeriodRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Period"];
+                };
+            };
+        };
+    };
+    v1_academics_periods_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this period. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Period"];
+                };
+            };
+        };
+    };
+    v1_academics_periods_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this period. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PeriodRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PeriodRequest"];
+                "multipart/form-data": components["schemas"]["PeriodRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Period"];
+                };
+            };
+        };
+    };
+    v1_academics_periods_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this period. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_academics_periods_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this period. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPeriodRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPeriodRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPeriodRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Period"];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"][];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SessionRequest"];
+                "multipart/form-data": components["schemas"]["SessionRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this academic session. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this academic session. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SessionRequest"];
+                "multipart/form-data": components["schemas"]["SessionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this academic session. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_academics_sessions_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this academic session. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSessionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSessionRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSessionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    v1_academics_sessions_set_current_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this academic session. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SessionRequest"];
+                "multipart/form-data": components["schemas"]["SessionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Session"];
+                };
+            };
+        };
+    };
+    v1_academics_subjects_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subject"][];
+                };
+            };
+        };
+    };
+    v1_academics_subjects_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubjectRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SubjectRequest"];
+                "multipart/form-data": components["schemas"]["SubjectRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subject"];
+                };
+            };
+        };
+    };
+    v1_academics_subjects_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this subject. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subject"];
+                };
+            };
+        };
+    };
+    v1_academics_subjects_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this subject. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubjectRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SubjectRequest"];
+                "multipart/form-data": components["schemas"]["SubjectRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subject"];
+                };
+            };
+        };
+    };
+    v1_academics_subjects_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this subject. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_academics_subjects_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this subject. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSubjectRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSubjectRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSubjectRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subject"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"][];
+                };
+            };
+        };
+    };
+    v1_academics_terms_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TermRequest"];
+                "multipart/form-data": components["schemas"]["TermRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this term. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this term. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TermRequest"];
+                "multipart/form-data": components["schemas"]["TermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this term. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_academics_terms_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this term. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedTermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedTermRequest"];
+                "multipart/form-data": components["schemas"]["PatchedTermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_set_current_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this term. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TermRequest"];
+                "multipart/form-data": components["schemas"]["TermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_academics_terms_current_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Term"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"][];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApplicationRequest"];
+                "multipart/form-data": components["schemas"]["ApplicationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this application. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this application. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApplicationRequest"];
+                "multipart/form-data": components["schemas"]["ApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this application. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedApplicationRequest"];
+                "multipart/form-data": components["schemas"]["PatchedApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_change_status_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this application. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApplicationRequest"];
+                "multipart/form-data": components["schemas"]["ApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_admissions_applications_enrol_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this application. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApplicationRequest"];
+                "multipart/form-data": components["schemas"]["ApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+        };
+    };
+    v1_assessments_components_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Component"][];
+                };
+            };
+        };
+    };
+    v1_assessments_components_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComponentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ComponentRequest"];
+                "multipart/form-data": components["schemas"]["ComponentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Component"];
+                };
+            };
+        };
+    };
+    v1_assessments_components_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this assessment component. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Component"];
+                };
+            };
+        };
+    };
+    v1_assessments_components_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this assessment component. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComponentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ComponentRequest"];
+                "multipart/form-data": components["schemas"]["ComponentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Component"];
+                };
+            };
+        };
+    };
+    v1_assessments_components_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this assessment component. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_assessments_components_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this assessment component. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedComponentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedComponentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedComponentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Component"];
+                };
+            };
+        };
+    };
+    v1_assessments_grade_bands_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeBand"][];
+                };
+            };
+        };
+    };
+    v1_assessments_grade_bands_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GradeBandRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["GradeBandRequest"];
+                "multipart/form-data": components["schemas"]["GradeBandRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeBand"];
+                };
+            };
+        };
+    };
+    v1_assessments_grade_bands_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this grade band. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeBand"];
+                };
+            };
+        };
+    };
+    v1_assessments_grade_bands_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this grade band. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GradeBandRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["GradeBandRequest"];
+                "multipart/form-data": components["schemas"]["GradeBandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeBand"];
+                };
+            };
+        };
+    };
+    v1_assessments_grade_bands_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this grade band. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_assessments_grade_bands_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this grade band. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedGradeBandRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedGradeBandRequest"];
+                "multipart/form-data": components["schemas"]["PatchedGradeBandRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeBand"];
+                };
+            };
+        };
+    };
+    v1_assessments_report_cards_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCard"][];
+                };
+            };
+        };
+    };
+    v1_assessments_report_cards_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this report card. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCard"];
+                };
+            };
+        };
+    };
+    v1_assessments_report_cards_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this report card. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["ReportCardRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReportCardRequest"];
+                "multipart/form-data": components["schemas"]["ReportCardRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCard"];
+                };
+            };
+        };
+    };
+    v1_assessments_report_cards_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this report card. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedReportCardRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedReportCardRequest"];
+                "multipart/form-data": components["schemas"]["PatchedReportCardRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCard"];
+                };
+            };
+        };
+    };
+    v1_assessments_report_cards_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this report card. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCard"];
+                };
+            };
+        };
+    };
+    v1_assessments_results_compute_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmTermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ArmTermRequest"];
+                "multipart/form-data": components["schemas"]["ArmTermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_assessments_results_publish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArmTermRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ArmTermRequest"];
+                "multipart/form-data": components["schemas"]["ArmTermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_assessments_scores_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_assessments_scores_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScoreSheetRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ScoreSheetRequest"];
+                "multipart/form-data": components["schemas"]["ScoreSheetRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_assessments_scores_amend_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AmendRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AmendRequest"];
+                "multipart/form-data": components["schemas"]["AmendRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_attendance_register_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_attendance_register_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RegisterRequest"];
+                "multipart/form-data": components["schemas"]["RegisterRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_attendance_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_audit_events_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAuditEventList"];
+                };
+            };
+        };
+    };
+    v1_audit_verify_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChainReport"];
+                };
+            };
+        };
+    };
+    v1_communication_announcements_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAnnouncementList"];
+                };
+            };
+        };
+    };
+    v1_communication_announcements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnouncementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnnouncementRequest"];
+                "multipart/form-data": components["schemas"]["AnnouncementRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Announcement"];
+                };
+            };
+        };
+    };
+    v1_communication_announcements_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this announcement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Announcement"];
+                };
+            };
+        };
+    };
+    v1_communication_announcements_publish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this announcement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnnouncementRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnnouncementRequest"];
+                "multipart/form-data": components["schemas"]["AnnouncementRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Announcement"];
+                };
+            };
+        };
+    };
+    v1_communication_deliveries_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDeliveryList"];
+                };
+            };
+        };
+    };
+    v1_communication_deliveries_usage_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Delivery"];
+                };
+            };
+        };
+    };
+    v1_communication_notifications_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedNotificationList"];
+                };
+            };
+        };
+    };
+    v1_communication_notifications_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this notification. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NotificationRequest"];
+                "multipart/form-data": components["schemas"]["NotificationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Notification"];
+                };
+            };
+        };
+    };
+    v1_communication_notifications_read_all_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NotificationRequest"];
+                "multipart/form-data": components["schemas"]["NotificationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Notification"];
+                };
+            };
+        };
+    };
+    v1_communication_notifications_unread_count_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Notification"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_items_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeItem"][];
+                };
+            };
+        };
+    };
+    v1_finance_fee_items_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeItemRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeItemRequest"];
+                "multipart/form-data": components["schemas"]["FeeItemRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeItem"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_items_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee item. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeItem"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_items_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee item. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeItemRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeItemRequest"];
+                "multipart/form-data": components["schemas"]["FeeItemRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeItem"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_items_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee item. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_finance_fee_items_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee item. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFeeItemRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFeeItemRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFeeItemRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeItem"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_schedules_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeSchedule"][];
+                };
+            };
+        };
+    };
+    v1_finance_fee_schedules_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeScheduleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeScheduleRequest"];
+                "multipart/form-data": components["schemas"]["FeeScheduleRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeSchedule"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_schedules_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee schedule. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeSchedule"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_schedules_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee schedule. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FeeScheduleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FeeScheduleRequest"];
+                "multipart/form-data": components["schemas"]["FeeScheduleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeSchedule"];
+                };
+            };
+        };
+    };
+    v1_finance_fee_schedules_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee schedule. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_finance_fee_schedules_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this fee schedule. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFeeScheduleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFeeScheduleRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFeeScheduleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeSchedule"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"][];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_discount_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_pay_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_record_payment_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_void_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_invoices_generate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    v1_finance_payments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"][];
+                };
+            };
+        };
+    };
+    v1_finance_payments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this payment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    v1_finance_payments_receipt_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this payment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    v1_finance_payments_verify_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this payment. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PaymentRequest"];
+                "multipart/form-data": components["schemas"]["PaymentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    v1_finance_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_me_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+        };
+    };
+    v1_members_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Member"][];
+                };
+            };
+        };
+    };
+    v1_members_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MemberRequest"];
+                "multipart/form-data": components["schemas"]["MemberRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Member"];
+                };
+            };
+        };
+    };
+    v1_members_activate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this membership. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MemberRequest"];
+                "multipart/form-data": components["schemas"]["MemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Member"];
+                };
+            };
+        };
+    };
+    v1_members_deactivate_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this membership. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MemberRequest"];
+                "multipart/form-data": components["schemas"]["MemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Member"];
+                };
+            };
+        };
+    };
+    v1_members_resend_invite_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A unique integer value identifying this membership. */
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MemberRequest"];
+                "multipart/form-data": components["schemas"]["MemberRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Member"];
+                };
+            };
+        };
+    };
+    v1_platform_tenants_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPlatformTenantList"];
+                };
+            };
+        };
+    };
+    v1_public_admissions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_public_admissions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublicApplicationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PublicApplicationRequest"];
+                "multipart/form-data": components["schemas"]["PublicApplicationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_registrations_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Registration"][];
+                };
+            };
+        };
+    };
+    v1_registrations_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistrationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RegistrationRequest"];
+                "multipart/form-data": components["schemas"]["RegistrationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Registration"];
+                };
+            };
+        };
+    };
+    v1_registrations_slug_check_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SlugAvailability"];
+                };
+            };
+        };
+    };
+    v1_school_messaging_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagingSettings"];
+                };
+            };
+        };
+    };
+    v1_school_messaging_settings_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedMessagingSettingsRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedMessagingSettingsRequest"];
+                "multipart/form-data": components["schemas"]["PatchedMessagingSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagingSettings"];
+                };
+            };
+        };
+    };
+    v1_school_payment_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentSettings"];
+                };
+            };
+        };
+    };
+    v1_school_payment_settings_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPaymentSettingsRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPaymentSettingsRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPaymentSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentSettings"];
+                };
+            };
+        };
+    };
+    v1_school_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolProfile"];
+                };
+            };
+        };
+    };
+    v1_school_profile_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedSchoolProfileRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedSchoolProfileRequest"];
+                "multipart/form-data": components["schemas"]["PatchedSchoolProfileRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolProfile"];
+                };
+            };
+        };
+    };
+    v1_staff_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Staff"][];
+                };
+            };
+        };
+    };
+    v1_staff_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StaffRequest"];
+                "multipart/form-data": components["schemas"]["StaffRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Staff"];
+                };
+            };
+        };
+    };
+    v1_staff_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this staff profile. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Staff"];
+                };
+            };
+        };
+    };
+    v1_staff_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this staff profile. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StaffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StaffRequest"];
+                "multipart/form-data": components["schemas"]["StaffRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Staff"];
+                };
+            };
+        };
+    };
+    v1_staff_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this staff profile. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    v1_staff_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this staff profile. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStaffRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStaffRequest"];
+                "multipart/form-data": components["schemas"]["PatchedStaffRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Staff"];
+                };
+            };
+        };
+    };
+    v1_students_list: {
+        parameters: {
+            query?: {
+                /** @description The pagination cursor value. */
+                cursor?: string;
+                /** @description Number of results to return per page. */
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStudentList"];
+                };
+            };
+        };
+    };
+    v1_students_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudentRequest"];
+                "multipart/form-data": components["schemas"]["StudentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+        };
+    };
+    v1_students_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+        };
+    };
+    v1_students_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["StudentRequest"];
+                "multipart/form-data": components["schemas"]["StudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+        };
+    };
+    v1_students_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedStudentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedStudentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedStudentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Student"];
+                };
+            };
+        };
+    };
+    v1_students_guardians_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Guardian"];
+                };
+            };
+        };
+    };
+    v1_students_guardians_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["GuardianRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["GuardianRequest"];
+                "multipart/form-data": components["schemas"]["GuardianRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Guardian"];
+                };
+            };
+        };
+    };
+    v1_students_attendance_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                student_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_students_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_webhooks_flutterwave_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+                "application/x-www-form-urlencoded": {
+                    [key: string]: unknown;
+                };
+                "multipart/form-data": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    v1_webhooks_paystack_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+                "application/x-www-form-urlencoded": {
+                    [key: string]: unknown;
+                };
+                "multipart/form-data": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
 }

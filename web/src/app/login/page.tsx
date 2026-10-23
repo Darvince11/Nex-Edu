@@ -1,109 +1,211 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, Suspense, useEffect, useState } from "react";
+import {
+  AuthField,
+  AuthHeading,
+  AuthShell,
+  Divider,
+  FormAlert,
+  KeyIcon,
+  PasswordInput,
+  SubmitButton,
+  TextInput,
+} from "@/components/auth";
+import { VerifyEmailStep } from "@/components/verify-email";
 import {
   type AuthResponse,
-  firstError,
   getSession,
   login,
   loginWithPasskey,
+  logout,
   pendingFlow,
   submitMfaCode,
 } from "@/lib/allauth";
+import { authError, safeReturnTo } from "@/lib/auth";
+
+type Step = "password" | "mfa" | "verify";
+
+const REASONS: Record<string, string> = {
+  not_authenticated: "Your session ended. Sign in again to continue.",
+};
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <SignIn />
+    </Suspense>
+  );
+}
+
+function SignIn() {
   const router = useRouter();
-  const [step, setStep] = useState<"password" | "mfa">("password");
+  const params = useSearchParams();
+  const next = safeReturnTo(params.get("next"));
+  const reason = params.get("reason");
+  const [step, setStep] = useState<Step>("password");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<"password" | "passkey" | "mfa" | null>(null);
 
   useEffect(() => {
     getSession().then((r) => {
-      if (r.meta?.is_authenticated) router.replace("/schools");
+      if (r.meta?.is_authenticated) router.replace(next);
+      else if (pendingFlow(r) === "mfa_authenticate") setStep("mfa");
+      else if (pendingFlow(r) === "verify_email") setStep("verify");
     });
-  }, [router]);
+  }, [router, next]);
 
   function handle(result: AuthResponse) {
     if (result.meta?.is_authenticated) {
-      router.replace("/schools");
-    } else if (pendingFlow(result) === "mfa_authenticate") {
-      setStep("mfa");
-      setError(undefined);
-    } else {
-      setError(firstError(result) ?? "Sign-in failed. Check your details and try again.");
+      router.replace(next);
+      return;
     }
+    const flow = pendingFlow(result);
+    if (flow === "mfa_authenticate" || flow === "verify_email") {
+      setError(undefined);
+      setStep(flow === "mfa_authenticate" ? "mfa" : "verify");
+      return;
+    }
+    setError(authError(result, "We couldn't sign you in. Check your details and try again."));
   }
 
-  async function run(action: () => Promise<AuthResponse>) {
-    setBusy(true);
+  async function run(kind: "password" | "passkey" | "mfa", action: () => Promise<AuthResponse>) {
+    setBusy(kind);
+    setError(undefined);
     try {
       handle(await action());
     } catch {
-      setError("Sign-in was cancelled or failed.");
+      setError(
+        kind === "passkey" ? "Passkey sign-in was cancelled." : "We couldn't reach Nex Edu. Try again.",
+      );
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
+  }
+
+  async function startOver() {
+    await logout();
+    setCode("");
+    setError(undefined);
+    setStep("password");
   }
 
   function onPassword(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
-    run(() => login(String(form.get("email")), String(form.get("password"))));
+    run("password", () => login(String(form.get("email")).trim(), String(form.get("password"))));
   }
 
   function onCode(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    run(() => submitMfaCode(String(form.get("code")).replace(/\s/g, "")));
+    run("mfa", () => submitMfaCode(code.replace(/\s/g, "")));
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
-      {error && (
-        <p role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
-          {error}
-        </p>
-      )}
-
-      {step === "password" ? (
+    <AuthShell>
+      {step === "verify" ? (
+        <VerifyEmailStep email={email} onVerified={() => router.replace(next)} onRestart={startOver} />
+      ) : step === "mfa" ? (
         <>
-          <button type="button" className="btn" disabled={busy} onClick={() => run(loginWithPasskey)}>
-            Sign in with a passkey
-          </button>
-          <div className="text-center text-sm text-neutral-500">or use your password</div>
-          <form onSubmit={onPassword} className="flex flex-col gap-3">
-            <label className="flex flex-col gap-1 text-sm">
-              Email
-              <input name="email" type="email" autoComplete="username webauthn" required className="input" />
-            </label>
-            <label className="flex flex-col gap-1 text-sm">
-              Password
-              <input
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="input"
-              />
-            </label>
-            <button type="submit" className="btn-secondary" disabled={busy}>
-              Continue
-            </button>
+          <AuthHeading title="Two-step verification">
+            Enter the 6-digit code from your authenticator app, or one of your recovery codes.
+          </AuthHeading>
+          <form onSubmit={onCode} className="flex flex-col gap-5" noValidate>
+            <AuthField label="Code" error={error}>
+              {({ id, describedBy }) => (
+                <TextInput
+                  id={id}
+                  aria-describedby={describedBy}
+                  invalid={Boolean(error)}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  autoFocus
+                  required
+                  className="text-center font-mono text-lg tracking-[0.3em]"
+                />
+              )}
+            </AuthField>
+            <SubmitButton busy={busy === "mfa"}>Verify</SubmitButton>
           </form>
+          <p className="mt-6 text-sm text-neutral-500">
+            Lost your device? Use one of your recovery codes, or email support@nexedu.com.gh.{" "}
+            <button
+              type="button"
+              onClick={startOver}
+              className="font-medium text-brand hover:text-brand-strong"
+            >
+              Start over
+            </button>
+          </p>
         </>
       ) : (
-        <form onSubmit={onCode} className="flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm">
-            Code from your authenticator app or a recovery code
-            <input name="code" inputMode="numeric" autoComplete="one-time-code" required className="input" />
-          </label>
-          <button type="submit" className="btn" disabled={busy}>
-            Verify
+        <>
+          <AuthHeading title="Welcome back">
+            Sign in to run your school or follow your child's progress.
+          </AuthHeading>
+          <div className="flex flex-col gap-5">
+            {reason && REASONS[reason] && <FormAlert tone="info">{REASONS[reason]}</FormAlert>}
+            {error && <FormAlert>{error}</FormAlert>}
+            <form onSubmit={onPassword} className="flex flex-col gap-5">
+              <AuthField label="Email">
+                {({ id }) => (
+                  <TextInput
+                    id={id}
+                    name="email"
+                    type="email"
+                    autoComplete="username webauthn"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                )}
+              </AuthField>
+              <AuthField
+                label="Password"
+                aside={
+                  <Link
+                    href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
+                    className="text-sm font-medium text-brand hover:text-brand-strong"
+                  >
+                    Forgot password?
+                  </Link>
+                }
+              >
+                {({ id }) => (
+                  <PasswordInput id={id} name="password" autoComplete="current-password" required />
+                )}
+              </AuthField>
+              <SubmitButton busy={busy === "password"}>Sign in</SubmitButton>
+            </form>
+          </div>
+          <Divider>or</Divider>
+          <button
+            type="button"
+            className="btn-secondary h-11 w-full gap-2"
+            disabled={busy !== null}
+            onClick={() => run("passkey", loginWithPasskey)}
+          >
+            <KeyIcon />
+            Sign in with a passkey
           </button>
-        </form>
+          <div className="mt-8 rounded-xl border border-neutral-200 p-4 text-sm dark:border-neutral-800">
+            <p className="font-medium">New to Nex Edu?</p>
+            <p className="mt-1 text-neutral-500">
+              School owners can{" "}
+              <Link href="/signup" className="font-medium text-brand hover:text-brand-strong">
+                register a school
+              </Link>
+              . Staff and parents: use the invitation email your school sent you.
+            </p>
+          </div>
+        </>
       )}
-    </main>
+    </AuthShell>
   );
 }

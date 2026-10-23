@@ -4,8 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
+import { Logo, LogoMark } from "@/components/brand";
 import { logout } from "@/lib/allauth";
 import { ApiError, api } from "@/lib/api";
+import { loginPath } from "@/lib/auth";
 import { useSchool } from "@/lib/hooks";
 import { navFor, ROLE_LABELS, type Role } from "@/lib/roles";
 
@@ -15,7 +17,8 @@ export default function SchoolLayout({ children }: { children: ReactNode }) {
   const { me, slug, school, roles } = useSchool();
 
   useEffect(() => {
-    if (me.error instanceof ApiError && [401, 403].includes(me.error.status)) router.replace("/login");
+    if (me.error instanceof ApiError && [401, 403].includes(me.error.status))
+      router.replace(loginPath(me.error.code));
     else if (slug === undefined || (me.data && slug && !school)) router.replace("/schools");
   }, [me.error, me.data, slug, school, router]);
 
@@ -44,7 +47,7 @@ export default function SchoolLayout({ children }: { children: ReactNode }) {
             href={item.href}
             className={`rounded-md px-3 py-2 text-sm ${
               active
-                ? "bg-brand/10 font-medium text-brand-strong dark:text-emerald-300"
+                ? "bg-brand/10 font-medium text-brand-strong dark:bg-brand/20 dark:text-brand-bright"
                 : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
             }`}
           >
@@ -58,8 +61,8 @@ export default function SchoolLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="hidden border-r border-neutral-200 bg-white p-4 lg:block dark:border-neutral-800 dark:bg-neutral-950">
-        <Link href="/dashboard" className="mb-1 block text-lg font-semibold text-brand">
-          Nex Edu
+        <Link href="/dashboard" className="mb-3 block" aria-label="Nex Edu dashboard">
+          <Logo className="h-11" />
         </Link>
         <p className="mb-4 text-xs text-neutral-500">{school.name}</p>
         {links}
@@ -67,14 +70,19 @@ export default function SchoolLayout({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950">
-          <details className="relative lg:hidden">
-            <summary className="cursor-pointer list-none rounded-md border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-700">
-              Menu
-            </summary>
-            <div className="absolute z-20 mt-2 w-64 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
-              {links}
-            </div>
-          </details>
+          <div className="flex shrink-0 items-center gap-2 lg:hidden">
+            <Link href="/dashboard" aria-label="Nex Edu dashboard">
+              <LogoMark className="h-8" />
+            </Link>
+            <details className="relative">
+              <summary className="cursor-pointer list-none rounded-md border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-700">
+                Menu
+              </summary>
+              <div className="absolute z-20 mt-2 w-64 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+                {links}
+              </div>
+            </details>
+          </div>
           <div className="min-w-0 text-sm">
             <span className="font-medium">{school.name}</span>
             <span className="hidden text-neutral-500 sm:inline">

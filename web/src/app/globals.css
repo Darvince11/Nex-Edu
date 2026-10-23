@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/* Colours sampled from the Nex Edu logo (web/public/brand/nex-edu-logo.png). */
 @theme {
-  --color-brand: oklch(0.45 0.12 160);
-  --color-brand-strong: oklch(0.38 0.12 160);
+  --color-brand: #0c63d9; /* body of the N; 5.5:1 with white text */
+  --color-brand-strong: #043dcc; /* royal blue at the foot of the N */
+  --color-brand-bright: #0794f7; /* "Edu"; accent text on dark surfaces */
+  --color-brand-sky: #03b8fd; /* top of the N gradient */
+  --color-brand-navy: #042159; /* cap and "Nex" */
+
+  /* Greys carry the logo's navy hue so surfaces, borders and dark mode sit with the brand. */
+  --color-neutral-50: oklch(98.4% 0.003 260);
+  --color-neutral-100: oklch(96.8% 0.007 260);
+  --color-neutral-200: oklch(92.9% 0.013 260);
+  --color-neutral-300: oklch(86.9% 0.022 260);
+  --color-neutral-400: oklch(70.4% 0.04 260);
+  --color-neutral-500: oklch(55.4% 0.046 260);
+  --color-neutral-600: oklch(44.6% 0.043 260);
+  --color-neutral-700: oklch(37.2% 0.044 260);
+  --color-neutral-800: oklch(27.9% 0.041 262);
+  --color-neutral-900: oklch(20.8% 0.042 264);
+  --color-neutral-950: oklch(14.5% 0.045 264);
 }
 
 :root {

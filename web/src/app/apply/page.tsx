@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { ApplicationForm } from "@/components/application-form";
+import { LogoMark } from "@/components/brand";
 import { Alert, Loading } from "@/components/ui";
 import { apiFetch } from "@/lib/api";
 
@@ -57,6 +58,10 @@ function Apply() {
           />
         )
       )}
+      <footer className="mt-10 flex items-center justify-center gap-2 text-xs text-neutral-500">
+        <LogoMark className="h-6" alt="" />
+        Powered by Nex Edu
+      </footer>
     </main>
   );
 }

@@ -49,12 +49,13 @@ CONTROL_PLANE_APPS = [
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
+    # Before allauth, so our branded email templates override allauth's defaults.
+    "control_plane",
     "allauth",
     "allauth.account",
     "allauth.mfa",
     "allauth.headless",
     "allauth.usersessions",
-    "control_plane",
 ]
 
 # Tenant apps live in each school's own database. The DB router uses this list
@@ -192,23 +193,38 @@ AUTH_PASSWORD_VALIDATORS = [
 BREACHED_PASSWORD_CHECK_ENABLED = env_bool("BREACHED_PASSWORD_CHECK_ENABLED", True)
 
 ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+# One password field with a show/hide toggle; the server enforces the rules below.
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*"]
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+# A 6-character code by email, entered on the same screen. Codes expire after 15
+# minutes and allow 3 wrong attempts before a new sign-in is needed.
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_ENABLED = True
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_TIMEOUT = 15 * 60
+ACCOUNT_EMAIL_VERIFICATION_BY_CODE_MAX_ATTEMPTS = 3
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False
+# Sign-up, sign-in and reset never reveal whether an email has an account.
 ACCOUNT_PREVENT_ENUMERATION = True
 ACCOUNT_REAUTHENTICATION_TIMEOUT = 300
 ACCOUNT_LOGIN_BY_CODE_ENABLED = False
-# Schools invite users. Public self-signup is closed.
-ACCOUNT_ADAPTER = "control_plane.adapters.InviteOnlyAccountAdapter"
+# Anyone may create an account, but an account alone opens nothing: school
+# access comes only from a school's invitation or an approved registration.
+ACCOUNT_ADAPTER = "control_plane.adapters.AccountAdapter"
+ACCOUNT_SIGNUP_FORM_CLASS = "control_plane.forms.SignupForm"
 ACCOUNT_RATE_LIMITS = {
     "login": "20/m/ip",
     "login_failed": "10/m/ip,5/5m/key",
-    "confirm_email": "1/3m/key",
+    "signup": "5/h/ip",
+    "confirm_email": "1/m/key",
     "reset_password": "20/m/ip,5/m/key",
+    "reset_password_from_key": "20/m/ip",
     "reauthenticate": "10/m/user",
 }
+# Our email templates carry full subjects; no "[hostname]" prefix.
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
+# Bumped whenever the terms or privacy notice change; stored with each user's consent.
+TERMS_VERSION = "2026-10-23"
 
 MFA_SUPPORTED_TYPES = ["webauthn", "totp", "recovery_codes"]
 MFA_PASSKEY_LOGIN_ENABLED = True
@@ -229,7 +245,8 @@ FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": f"{FRONTEND_URL}/account/verify-email/{{key}}",
     "account_reset_password_from_key": f"{FRONTEND_URL}/account/password/reset/{{key}}",
-    "account_signup": f"{FRONTEND_URL}/account/signup",
+    "account_signup": f"{FRONTEND_URL}/signup",
+    "account_reset_password": f"{FRONTEND_URL}/forgot-password",
 }
 
 # Roles that must have MFA enrolled before they can use any tenant endpoint.
@@ -309,6 +326,8 @@ REST_FRAMEWORK = {
         "user": "600/min",
         "tenant": "6000/min",
         "public": "10/min",
+        # School registration requests and slug checks, per user.
+        "registration": "10/hour",
     },
     "DEFAULT_PAGINATION_CLASS": "core.pagination.DefaultCursorPagination",
     "PAGE_SIZE": 50,

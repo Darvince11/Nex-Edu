@@ -42,7 +42,7 @@ export default function InboxPage() {
           {items.data.results.map((n) => (
             <li
               key={n.id}
-              className={`flex items-start justify-between gap-3 px-4 py-3 ${n.read_at ? "" : "bg-emerald-50/60 dark:bg-emerald-950/30"}`}
+              className={`flex items-start justify-between gap-3 px-4 py-3 ${n.read_at ? "" : "bg-brand/5 dark:bg-brand/15"}`}
             >
               <div>
                 <div className="font-medium">{n.title}</div>

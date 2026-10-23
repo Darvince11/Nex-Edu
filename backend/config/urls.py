@@ -14,6 +14,8 @@ from apps.school.api import views as school
 from apps.staff.api import views as staff
 from apps.students.api import views as students
 from control_plane.api.members import MemberViewSet
+from control_plane.api.platform import PlatformTenantListView
+from control_plane.api.registrations import RegistrationListCreateView, SlugAvailabilityView
 from control_plane.api.views import MeView
 from core.audit.api.views import AuditEventListView, AuditVerifyView
 
@@ -89,6 +91,11 @@ api_v1 = [
     ),
     path("audit/events/", AuditEventListView.as_view(), name="audit-events"),
     path("audit/verify/", AuditVerifyView.as_view(), name="audit-verify"),
+    path("platform/tenants/", PlatformTenantListView.as_view(), name="platform-tenants"),
+    path("registrations/", RegistrationListCreateView.as_view(), name="registrations"),
+    path(
+        "registrations/slug-check/", SlugAvailabilityView.as_view(), name="registration-slug-check"
+    ),
     path("", include(router.urls)),
 ]
 

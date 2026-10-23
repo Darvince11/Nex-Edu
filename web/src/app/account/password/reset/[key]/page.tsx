@@ -3,15 +3,27 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
-import { Alert, Button, Field, Input } from "@/components/ui";
-import { firstError, getSession, resetPassword } from "@/lib/allauth";
+import {
+  AuthField,
+  AuthHeading,
+  AuthShell,
+  CheckCircleIcon,
+  FormAlert,
+  PasswordChecklist,
+  PasswordInput,
+  SubmitButton,
+} from "@/components/auth";
+import { getSession, resetPassword } from "@/lib/allauth";
+import { authError, passwordAcceptable, passwordRules } from "@/lib/auth";
 
-/** Where invitation and password-reset emails land. */
+/** Where invitation and password-reset emails land. The link works once. */
 export default function SetPasswordPage() {
   const { key } = useParams<{ key: string }>();
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
+  const rules = passwordRules(password);
 
   useEffect(() => {
     void getSession(); // sets the CSRF cookie
@@ -19,48 +31,68 @@ export default function SetPasswordPage() {
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const password = String(form.get("password"));
-    if (password !== String(form.get("confirm"))) {
-      setError("The two passwords don't match.");
+    if (!passwordAcceptable(rules)) {
+      setError("Choose a password that meets the rules below.");
       return;
     }
     setBusy(true);
-    const result = await resetPassword(decodeURIComponent(key), password);
-    setBusy(false);
-    // 401 with a pending "login" flow means success: the password is set, now sign in.
-    if (result.status === 200 || result.status === 401) setDone(true);
-    else setError(firstError(result) ?? "This link has expired or was already used.");
+    setError(undefined);
+    try {
+      const result = await resetPassword(decodeURIComponent(key), password);
+      // 401 with a pending "login" flow means success: the password is set, now sign in.
+      if (result.status === 200 || result.status === 401) setDone(true);
+      else setError(authError(result, "This link has expired or was already used. Ask for a new one."));
+    } catch {
+      setError("We couldn't reach Nex Edu. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-5 px-4">
-      <h1 className="text-2xl font-semibold">Set your password</h1>
+    <AuthShell>
       {done ? (
-        <Alert tone="success">
-          Your password is set.{" "}
-          <Link href="/login" className="font-medium underline">
+        <>
+          <div className="mb-6 grid size-12 place-items-center rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+            <CheckCircleIcon className="size-7" />
+          </div>
+          <AuthHeading title="Your password is set">
+            Sign in with it now. Staff will then set up a passkey or authenticator app.
+          </AuthHeading>
+          <Link href="/login" className="btn h-11 w-full">
             Sign in
-          </Link>{" "}
-          to continue.
-        </Alert>
+          </Link>
+        </>
       ) : (
-        <form onSubmit={submit} className="flex flex-col gap-3">
-          <p className="text-sm text-neutral-500">
-            Use at least 12 characters. A short sentence you'll remember works well.
+        <>
+          <AuthHeading title="Choose a password">
+            Four or more unrelated words you'll remember work well. Don't reuse a password from another site.
+          </AuthHeading>
+          <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
+            {error && <FormAlert>{error}</FormAlert>}
+            <AuthField label="New password" hint={<PasswordChecklist rules={rules} />}>
+              {({ id, describedBy }) => (
+                <PasswordInput
+                  id={id}
+                  aria-describedby={describedBy}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  autoFocus
+                  required
+                />
+              )}
+            </AuthField>
+            <SubmitButton busy={busy}>Set password</SubmitButton>
+          </form>
+          <p className="mt-6 text-center text-sm text-neutral-500">
+            Link expired?{" "}
+            <Link href="/forgot-password" className="font-medium text-brand hover:text-brand-strong">
+              Get a new one
+            </Link>
           </p>
-          <Field label="New password">
-            <Input name="password" type="password" autoComplete="new-password" minLength={12} required />
-          </Field>
-          <Field label="Confirm password">
-            <Input name="confirm" type="password" autoComplete="new-password" minLength={12} required />
-          </Field>
-          {error && <Alert tone="error">{error}</Alert>}
-          <Button type="submit" busy={busy}>
-            Set password
-          </Button>
-        </form>
+        </>
       )}
-    </main>
+    </AuthShell>
   );
 }

@@ -9,7 +9,15 @@ export const metadata: Metadata = {
   description: "Records, results, fees and communication for your school.",
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1 };
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Browser chrome on Android takes the logo's blue in light mode, its navy in dark.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0c63d9" },
+    { media: "(prefers-color-scheme: dark)", color: "#042159" },
+  ],
+};
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   // Reading headers makes every page render per request, which a per-request

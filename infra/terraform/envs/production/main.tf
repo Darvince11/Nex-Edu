@@ -1,4 +1,5 @@
-# Production workload account, primary region af-south-1 (Cape Town).
+# Production workload account, primary region af-south-1 (Cape Town), the nearest
+# full-service AWS region to Ghana. DR in eu-west-1.
 # State lives in an S3 bucket with native locking in the shared-services account.
 
 terraform {

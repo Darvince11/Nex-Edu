@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from allauth.account.adapter import DefaultAccountAdapter
-from django.http import HttpRequest
 
 
-class InviteOnlyAccountAdapter(DefaultAccountAdapter):
-    """Schools invite their users. There is no public self-signup."""
+class AccountAdapter(DefaultAccountAdapter):
+    """Sign-up is open, but an account by itself opens nothing.
 
-    def is_open_for_signup(self, request: HttpRequest) -> bool:
-        return False
+    School access comes only from a membership, which is created by a school's
+    invitation or when platform staff approve a school registration. Everything
+    else (verification by code, rate limits, enumeration-safe responses, the
+    honeypot) is allauth configured in ``settings.base``.
+    """

@@ -48,16 +48,6 @@ def test_breached_passwords_are_rejected(settings):
         BreachedPasswordValidator().validate("unreachable-service-fails-open")
 
 
-@pytest.mark.django_db
-def test_public_signup_is_closed(client: Client):
-    response = client.post(
-        "/_allauth/browser/v1/auth/signup",
-        {"email": "new@example.test", "password": "a-long-unique-password-77"},
-        content_type="application/json",
-    )
-    assert response.status_code == 403
-
-
 def test_tenant_task_requires_explicit_school(tenant):
     from celery import shared_task
 
@@ -71,3 +61,40 @@ def test_tenant_task_requires_explicit_school(tenant):
     assert which_school.apply(kwargs={"tenant_slug": "greenfield"}).get() == "greenfield"
     with pytest.raises(ValueError, match="requires tenant_slug"):
         which_school.apply().get()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("origin", ["http://localhost:3100", "http://127.0.0.1:3000"])
+def test_browser_sign_in_passes_csrf_origin_check(origin):
+    """Browsers send Origin on POST. The local web app's origin must be trusted,
+    or every sign-in fails with 403 (as happened on port 3100)."""
+    from allauth.account.models import EmailAddress
+
+    from control_plane.models import User
+
+    user = User.objects.create_user("origin@example.test", "a-long-test-password-1")
+    EmailAddress.objects.create(user=user, email=user.email, verified=True, primary=True)
+    browser = Client(enforce_csrf_checks=True, HTTP_HOST="127.0.0.1:8000")
+    browser.get("/_allauth/browser/v1/auth/session")
+    response = browser.post(
+        "/_allauth/browser/v1/auth/login",
+        {"email": user.email, "password": "a-long-test-password-1"},
+        content_type="application/json",
+        HTTP_ORIGIN=origin,
+        HTTP_X_CSRFTOKEN=browser.cookies["csrftoken"].value,
+    )
+    assert response.status_code == 200, response.content
+
+
+@pytest.mark.django_db
+def test_untrusted_origin_is_rejected():
+    browser = Client(enforce_csrf_checks=True, HTTP_HOST="127.0.0.1:8000")
+    browser.get("/_allauth/browser/v1/auth/session")
+    response = browser.post(
+        "/_allauth/browser/v1/auth/login",
+        {"email": "x@example.test", "password": "whatever-password"},
+        content_type="application/json",
+        HTTP_ORIGIN="https://evil.example",
+        HTTP_X_CSRFTOKEN=browser.cookies["csrftoken"].value,
+    )
+    assert response.status_code == 403
