@@ -6,7 +6,7 @@ variable "region" {
 variable "domain" {
   type        = string
   description = "Base domain; schools live at <slug>.<domain>"
-  default     = "nexedu.ng"
+  default     = "nexedu.com.gh"
 }
 
 variable "account_suffix" {

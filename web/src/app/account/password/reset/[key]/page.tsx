@@ -57,7 +57,7 @@ export default function SetPasswordPage() {
             <CheckCircleIcon className="size-7" />
           </div>
           <AuthHeading title="Your password is set">
-            Sign in with it now. Staff will then set up a passkey or authenticator app.
+            Sign in with it now. Staff will then set up an authenticator app.
           </AuthHeading>
           <Link href="/login" className="btn h-11 w-full">
             Sign in
@@ -87,7 +87,7 @@ export default function SetPasswordPage() {
           </form>
           <p className="mt-6 text-center text-sm text-neutral-500">
             Link expired?{" "}
-            <Link href="/forgot-password" className="font-medium text-brand hover:text-brand-strong">
+            <Link href="/forgot-password" className="font-medium text-link hover:text-link-hover">
               Get a new one
             </Link>
           </p>

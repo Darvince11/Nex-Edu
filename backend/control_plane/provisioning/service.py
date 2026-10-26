@@ -91,6 +91,37 @@ def provision_tenant(
         logger.exception("Provisioning failed for tenant %s", slug)
         tenant.status = Tenant.Status.FAILED
         tenant.save(update_fields=["status"])
+        discard_tenant(tenant, provisioner)
         raise
     logger.info("Provisioned tenant %s on cell %s", slug, cell.name if cell else "local")
     return tenant
+
+
+def discard_tenant(tenant: Tenant, provisioner: Provisioner | None = None) -> bool:
+    """Remove a school that never finished setting up: its database, login, stored
+    credentials and record, so the same web address can be set up again.
+
+    Only for schools that failed or are stuck setting up, never a live one. If the
+    database can't be dropped (say the server is down), the record is kept as
+    FAILED so the next sweep tries again and nothing is left orphaned. Returns
+    True when everything was removed.
+    """
+    from control_plane.db import forget_tenant_connection
+
+    if tenant.status not in (Tenant.Status.FAILED, Tenant.Status.PROVISIONING):
+        raise ValueError(f"Refusing to discard {tenant.slug}: it is {tenant.status}.")
+    provisioner = provisioner or get_provisioner()
+    forget_tenant_connection(tenant.db_alias)
+    try:
+        provisioner.drop_database(tenant)
+    except Exception:
+        logger.exception("Could not drop the half-created database of %s; will retry", tenant.slug)
+        Tenant.objects.filter(pk=tenant.pk).update(status=Tenant.Status.FAILED)
+        return False
+    try:
+        get_secrets_backend().delete(tenant.secret_ref)
+    except Exception:  # an already-missing secret is fine
+        logger.warning("No stored credentials to remove for %s", tenant.slug)
+    tenant.delete()
+    logger.info("Discarded the unfinished school %s", tenant.slug)
+    return True

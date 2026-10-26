@@ -8,6 +8,7 @@ from django.test import Client
 
 from control_plane.models import Role
 from core.passwords import BreachedPasswordValidator
+from core.rbac import permissions_for_roles
 
 
 def test_health_check_bypasses_host_validation(client: Client):
@@ -35,8 +36,29 @@ def test_me_lists_only_active_memberships(tenant, other_tenant, make_member, api
     data = api(user, None).get("/api/v1/me/").data
     assert data["mfa_enrolled"] is True
     assert data["schools"] == [
-        {"slug": "greenfield", "name": "Greenfield", "roles": ["form_teacher", "teacher"]}
+        {
+            "slug": "greenfield",
+            "name": "Greenfield",
+            "roles": ["form_teacher", "teacher"],
+            "permissions": sorted(permissions_for_roles([Role.FORM_TEACHER, Role.TEACHER])),
+            "grantable_roles": [],
+            "modules": [
+                "academics",
+                "admissions",
+                "assessments",
+                "attendance",
+                "communication",
+                "fees",
+                "people",
+                "school",
+                "sms",
+            ],
+            "custom_roles": [],
+            "custom_permissions": [],
+            "support_access_until": None,
+        }
     ]
+    assert data["unavailable_schools"] == []  # the inactive membership isn't listed either
 
 
 def test_breached_passwords_are_rejected(settings):

@@ -59,7 +59,7 @@ scale; a well-bounded Django monolith is faster to build, easier to secure, and 
 | **Control-plane DB** | One Aurora cluster holding `tenants`, `users` (global identity), `memberships` (user × school × role), subscription/billing, feature flags, schema-version per tenant. A parent with children in two schools has one login. |
 | **Tenant DBs** | One PostgreSQL database per school, each with its **own Postgres role and password** stored in Secrets Manager. A routing bug can't silently write to another school's DB with the wrong credentials. |
 | **Cells** | ~25 school DBs per Aurora Serverless v2 cluster. Limits the blast radius of an outage, scales capacity per cell, and allows bin-packing large schools. Premium or very large schools can get a dedicated cluster. |
-| **Routing** | Middleware resolves the tenant from the subdomain (`greenfield.nexedu.ng`) or the `X-Tenant` header for mobile. It checks the user's membership in the control plane, then sets a `contextvars` tenant. A Django DB router sends all tenant-app models to that tenant's DB alias, which is registered lazily from the tenant registry. A request with no resolved tenant fails closed. |
+| **Routing** | Middleware resolves the tenant from the subdomain (`greenfield.nexedu.com.gh`) or the `X-Tenant` header for mobile. It checks the user's membership in the control plane, then sets a `contextvars` tenant. A Django DB router sends all tenant-app models to that tenant's DB alias, which is registered lazily from the tenant registry. A request with no resolved tenant fails closed. |
 | **Pooling** | PgBouncer (transaction mode) per cell, with one pool per database. Django uses `CONN_MAX_AGE=0` and `DISABLE_SERVER_SIDE_CURSORS=True` behind PgBouncer. This stops 100+ DBs × N tasks from exhausting connections. |
 | **Migrations** | A `migrate_tenants` management command runs migrations in parallel batches. Order: canary schools → one cell → all cells. It records the version per tenant and halts on the first failure. Use **expand/contract** migrations only, so old and new code both work during rollout. |
 | **Provisioning** | A Celery workflow picks a cell (bin-packing), creates the DB and role, stores the secret, runs migrations, seeds defaults (KG 1 to JHS 3, GES subjects, NaCCA and BECE grading, 30/70 assessment weights, ledger accounts), and creates the subdomain. Target is under 5 minutes, fully automated from the super-admin console. |
@@ -100,7 +100,7 @@ Exact versions are pinned at scaffold time in `uv.lock` and `pnpm-lock.yaml`. Re
 | Layer | Choice |
 |---|---|
 | Language | Python 3.14, TypeScript (strict), Node.js 24 LTS |
-| Backend | **Django 6.x** (move to 6.2 LTS when released in April 2027), Django REST Framework, drf-spectacular (OpenAPI 3.1), django-allauth (headless, MFA, passkeys), django-guardian or custom object-level permissions, Django Channels (realtime) |
+| Backend | **Django 6.x** (move to 6.2 LTS when released in April 2027), Django REST Framework, drf-spectacular (OpenAPI 3.1), django-allauth (headless, MFA), django-guardian or custom object-level permissions, Django Channels (realtime) |
 | ASGI server | Granian or Uvicorn workers under Gunicorn |
 | Jobs | Celery 5.x with SQS broker, django-celery-beat for schedules |
 | Database | Aurora PostgreSQL (latest supported major, 17 or 18), PgBouncer |
@@ -159,7 +159,7 @@ All feature groups from the provided list are included. They are sequenced so th
 
 | Phase | Scope |
 |---|---|
-| **0. Foundation** | AWS accounts and landing zone, Terraform cells, CI/CD, control plane, tenant provisioning, auth (MFA, passkeys), RBAC, audit log, super-admin console |
+| **0. Foundation** | AWS accounts and landing zone, Terraform cells, CI/CD, control plane, tenant provisioning, auth (MFA), RBAC, audit log, super-admin console |
 | **1. Core school ops** | Academic structure (KG, Basic 1-6, JHS 1-3; 3 terms), admissions and enrolment, student and staff profiles, bulk CSV/Excel import, timetable, attendance (web + offline mobile), CA and exams, grading and GES-style terminal reports with BECE aggregates, fee billing with Paystack/Flutterwave, receipts, announcements, SMS/WhatsApp/email notifications |
 | **2. Portals and engagement** | Parent and student mobile app, parent–teacher messaging, behaviour reports, LMS (assignments, quizzes, CBT practice), events and calendar, surveys |
 | **3. Operations** | Payroll (GRA PAYE, SSNIT contributions), library, transport (routes, GPS optional), hostel, inventory and assets, scholarships, budgeting and expenses |
@@ -178,7 +178,7 @@ The baseline is **OWASP ASVS 5.0 Level 2** for the whole app. Level 3 controls a
 finance, and health records.
 
 ### 5.1 Identity and authentication
-- **Passkeys (WebAuthn)** as the preferred login. Mandatory **MFA** (TOTP or passkey) for all staff,
+- Mandatory **MFA** (authenticator app, TOTP) for all staff,
   admins, and finance roles. Optional but encouraged for parents. SMS OTP only as a fallback.
 - Passwords: Argon2id hashing, minimum 12 characters, check against breached-password lists (HIBP
   k-anonymity), no forced periodic rotation (NIST SP 800-63B).
@@ -354,4 +354,4 @@ finance, and health records.
 ## First implementation step after approval
 Scaffold the monorepo (Phase 0): Terraform landing zone and one cell module, Django project with the
 `platform` control plane, tenant router, middleware, and provisioning command, the auth stack with MFA and
-passkeys, the audit log, CI security gates, and a Next.js shell with login and a school-switcher.
+the audit log, CI security gates, and a Next.js shell with login and a school-switcher.

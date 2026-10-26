@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cedis, todayInAccra, toPesewas } from "./format";
+import { cedis, timeAgo, todayInAccra, toPesewas } from "./format";
 
 describe("cedis", () => {
   it("formats integer pesewas as Ghana cedis", () => {
@@ -27,5 +27,16 @@ describe("toPesewas", () => {
 describe("todayInAccra", () => {
   it("uses GMT, Ghana's time zone all year", () => {
     expect(todayInAccra(new Date("2026-10-19T23:30:00Z"))).toBe("2026-10-19");
+  });
+});
+
+describe("timeAgo", () => {
+  const now = new Date("2026-10-24T12:00:00Z");
+  it("says how long ago in plain words", () => {
+    expect(timeAgo("2026-10-24T11:59:30Z", now)).toBe("just now");
+    expect(timeAgo("2026-10-24T09:00:00Z", now)).toBe("3 hours ago");
+    expect(timeAgo("2026-10-23T12:00:00Z", now)).toBe("yesterday");
+    expect(timeAgo("2026-10-03T12:00:00Z", now)).toBe("3 weeks ago");
+    expect(timeAgo(null, now)).toBe("—");
   });
 });

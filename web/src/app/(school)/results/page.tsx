@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { CommentDraftButton, useCanDraft } from "@/components/ai-draft";
 import {
   Alert,
   Badge,
@@ -20,16 +21,20 @@ import {
 } from "@/components/ui";
 import { api, download, type ReportCard } from "@/lib/api";
 import { useArms, useCurrentTerm, useSchool, useTerms } from "@/lib/hooks";
-import { hasAny, isParentOnly } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
+import { isParentOnly } from "@/lib/roles";
 
 export default function ResultsPage() {
-  const { roles } = useSchool();
+  const { roles, can } = useSchool();
   const parent = isParentOnly(roles);
-  const canPublish = hasAny(roles, ["owner", "principal", "admin"]);
+  const publishAny = can(PERM.ASSESSMENTS_PUBLISH);
+  // Class teachers prepare report cards for their own class only.
+  const publishOwn = !publishAny && can(PERM.ASSESSMENTS_PUBLISH_OWN_CLASS);
   const client = useQueryClient();
   const terms = useTerms();
   const current = useCurrentTerm();
-  const arms = useArms(!canPublish);
+  const arms = useArms(!publishAny);
+  const formArms = useArms("form", publishOwn);
   const [term, setTerm] = useState("");
   const [arm, setArm] = useState("");
   const [open, setOpen] = useState<ReportCard | null>(null);
@@ -57,6 +62,7 @@ export default function ResultsPage() {
   });
 
   const drafts = cards.data?.filter((c) => c.status === "draft").length ?? 0;
+  const canPublish = publishAny || (publishOwn && Boolean(formArms.data?.some((a) => a.id === arm)));
 
   return (
     <>
@@ -201,6 +207,8 @@ function CardDetail({
     },
   });
   const codes = Object.keys(card.lines[0]?.components ?? {});
+  const canDraft = useCanDraft();
+  const { can } = useSchool();
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
@@ -235,9 +243,13 @@ function CardDetail({
                 maxLength={500}
               />
             </Field>
+            {canDraft && <CommentDraftButton reportCard={card.id} forHead={false} onDraft={setTeacher} />}
             <Field label="Head teacher">
               <Textarea value={head} onChange={(e) => setHead(e.target.value)} rows={2} maxLength={500} />
             </Field>
+            {canDraft && can(PERM.ASSESSMENTS_PUBLISH) && (
+              <CommentDraftButton reportCard={card.id} forHead onDraft={setHead} />
+            )}
             <ErrorText error={save.error} />
             <div className="flex justify-end">
               <Button busy={save.isPending} onClick={() => save.mutate()}>

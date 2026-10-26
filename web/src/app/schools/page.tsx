@@ -5,24 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Logo } from "@/components/brand";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/lib/allauth";
-import { ApiError, apiFetch, type Me, type Registration, selectSchool } from "@/lib/api";
+import { ApiError, apiFetch, getSelectedSchool, type Me, type Registration, selectSchool } from "@/lib/api";
 import { loginPath, SCHOOL_DOMAIN } from "@/lib/auth";
+import { formatDate } from "@/lib/format";
+import { pickSchool } from "@/lib/school";
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: "Proprietor",
-  principal: "Principal",
-  admin: "Administrator",
-  bursar: "Bursar",
-  teacher: "Teacher",
-  form_teacher: "Form teacher",
-  librarian: "Librarian",
-  warden: "Hostel warden",
-  driver: "Driver",
-  parent: "Parent",
-  student: "Student",
-};
-
+/**
+ * Where sign-in lands. Nobody picks a school here: people who belong to one go
+ * straight to it (see pickSchool), Nex Edu staff with no school go to the
+ * console, and everyone else sees how their registration or invitation stands.
+ */
 export default function SchoolsPage() {
   const router = useRouter();
   const me = useQuery({
@@ -30,78 +24,93 @@ export default function SchoolsPage() {
     queryFn: () => apiFetch<Me>("/api/v1/me", { school: false }),
   });
   const noSchools = me.data?.schools.length === 0;
+  const platformOnly = noSchools && Boolean(me.data?.platform_roles.length);
   const registrations = useQuery({
     queryKey: ["registrations"],
     queryFn: () => apiFetch<Registration[]>("/api/v1/registrations", { school: false }),
-    enabled: noSchools,
+    enabled: noSchools && !platformOnly,
   });
 
   useEffect(() => {
     if (me.error instanceof ApiError && [401, 403].includes(me.error.status)) {
       router.replace(loginPath(me.error.code));
+      return;
     }
-  }, [me.error, router]);
+    if (!me.data) return;
+    const slug = pickSchool(me.data, getSelectedSchool());
+    if (slug) {
+      selectSchool(slug);
+      router.replace("/dashboard");
+    } else if (me.data.platform_roles.length) {
+      router.replace("/platform");
+    }
+  }, [me.data, me.error, router]);
 
-  if (me.isPending) return <p className="p-6">Loading…</p>;
-  if (!me.data) return <p className="p-6">Could not load your account.</p>;
-
-  function open(slug: string) {
-    selectSchool(slug);
-    router.push("/dashboard");
+  if (me.isPending || (me.data && (!noSchools || platformOnly))) {
+    return (
+      <main className="grid min-h-dvh place-items-center px-4">
+        <div className="flex flex-col items-center gap-4 text-sm text-neutral-500" role="status">
+          <Logo className="h-11" />
+          Signing you in…
+        </div>
+      </main>
+    );
   }
+  if (!me.data) return <p className="p-6">Could not load your account.</p>;
 
   async function signOut() {
     await logout();
     router.replace("/login");
   }
 
-  const isStaff = me.data.schools.some((s) => s.roles.some((r) => r !== "parent" && r !== "student"));
   const latest = registrations.data?.[0];
+  const unavailable = me.data.unavailable_schools ?? [];
 
   return (
     <main className="mx-auto max-w-xl px-4 py-10">
       <div className="mb-8 flex items-center justify-between gap-4">
         <Logo className="h-12" />
-        <button
-          type="button"
-          onClick={signOut}
-          className="text-sm font-medium text-neutral-500 hover:text-brand"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={signOut}
+            className="text-sm font-medium text-neutral-500 hover:text-link"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-semibold">{noSchools ? "Your account" : "Choose a school"}</h1>
+      <h1 className="text-2xl font-semibold">Your account</h1>
       <p className="mt-1 text-neutral-500">Signed in as {me.data.email}</p>
 
-      {isStaff && !me.data.mfa_enrolled && (
-        <p className="mt-6 rounded-md bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-          Staff accounts need a passkey or authenticator app.{" "}
-          <Link href="/security" className="font-medium underline">
-            Set one up
-          </Link>
-          .
-        </p>
-      )}
+      {unavailable.map((s) => (
+        <section
+          key={s.slug}
+          aria-label={s.name}
+          className="mt-6 rounded-card border border-amber-300 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-950/40"
+        >
+          <p className="font-medium">
+            {s.name} is {s.status === "suspended" ? "suspended" : "closed"}
+          </p>
+          <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+            {s.status === "suspended"
+              ? s.unpaid
+                ? "A Nex Edu invoice is more than 30 days overdue. Nobody at the school can sign in until it's paid."
+                : "Nex Edu has suspended the school. Nobody at the school can sign in for now."
+              : `The school has left Nex Edu. Its data is kept locked until ${s.purge_after ? formatDate(s.purge_after) : "it is destroyed"}.`}
+            {!s.is_owner && " The proprietor has been told what to do."}
+          </p>
+          {s.is_owner && (
+            <Link href={`/account/billing?school=${s.slug}`} className="btn mt-4 h-10">
+              {s.status === "suspended" && s.unpaid ? "Pay now" : "Billing and your data"}
+            </Link>
+          )}
+        </section>
+      ))}
 
-      <ul className="mt-6 flex flex-col gap-3">
-        {me.data.schools.map((school) => (
-          <li key={school.slug}>
-            <button
-              type="button"
-              onClick={() => open(school.slug)}
-              className="w-full rounded-lg border border-neutral-200 p-4 text-left hover:border-brand hover:bg-brand/5 dark:border-neutral-800"
-            >
-              <span className="block font-medium">{school.name}</span>
-              <span className="text-sm text-neutral-500">
-                {school.roles.map((r) => ROLE_LABELS[r] ?? r).join(", ")}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      {noSchools && (
-        <section className="mt-2 rounded-xl border border-neutral-200 p-5 dark:border-neutral-800">
+      {unavailable.length === 0 && (
+        <section className="mt-6 rounded-card border border-neutral-200 p-5 dark:border-neutral-800">
           {latest && latest.status !== "rejected" ? (
             <>
               <p className="text-sm text-neutral-500">School registration</p>
@@ -115,7 +124,7 @@ export default function SchoolsPage() {
                 {latest.status_label}
               </p>
               <p className="mt-3 text-sm text-neutral-500">
-                {latest.status === "pending"
+                {latest.status === "pending" || latest.status === "provisioning"
                   ? "We'll email you when it's approved, usually within two working days."
                   : "Our team will be in touch about finishing setup."}
               </p>

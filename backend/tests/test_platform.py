@@ -37,8 +37,12 @@ def test_only_platform_staff_with_the_right_role_see_all_schools(
 
 
 @pytest.mark.django_db
-def test_platform_staff_need_mfa(tenant, make_member, api):
+def test_platform_staff_get_in_without_an_app_unless_it_is_required(
+    tenant, make_member, api, settings
+):
     staff = _staff(PlatformRole.SUPER_ADMIN, mfa=False, make_member=make_member, tenant=tenant)
+    assert api(staff, None).get(URL).status_code == 200  # optional by default
+    settings.PLATFORM_MFA_REQUIRED = True
     response = api(staff, None).get(URL)
     assert response.status_code == 403
     assert response.data["code"] == "mfa_enrollment_required"
@@ -117,8 +121,64 @@ def test_tenant_less_endpoints_are_exactly_the_expected_ones():
         and not getattr(view, "public_endpoint", False)
     )
     assert tenant_less == [
+        # The proprietor's own billing, export and support access: each checks that the
+        # signed-in person is the school's owner (they must work while it is suspended).
+        "api/v1/account/schools/<slug:slug>/billing/",
+        "api/v1/account/schools/<slug:slug>/billing/charges/<str:reference>/",
+        "api/v1/account/schools/<slug:slug>/billing/pay/",
+        "api/v1/account/schools/<slug:slug>/export/",
+        "api/v1/account/schools/<slug:slug>/support/",
+        "api/v1/account/schools/<slug:slug>/support/<uuid:pk>/revoke/",
+        # Developer API: an API key (one school, read-only scopes) picks the school.
+        "api/v1/developer/attendance/",
+        "api/v1/developer/classes/",
+        "api/v1/developer/invoices/",
+        "api/v1/developer/payments/",
+        "api/v1/developer/students/",
         "api/v1/me/",
+        # A proprietor's own Nex Edu announcements (filtered to the signed-in user).
+        "api/v1/nexedu-announcements/",
+        "api/v1/nexedu-announcements/<uuid:pk>/read/",
+        # Super Admin console: each requires IsPlatformStaff (checked below).
+        "api/v1/platform/announcements/",
+        "api/v1/platform/announcements/<uuid:pk>/",
+        "api/v1/platform/announcements/<uuid:pk>/publish/",
+        "api/v1/platform/audit/",
+        "api/v1/platform/audit/groups/",
+        "api/v1/platform/audit/mine/",
+        "api/v1/platform/audit/verify/",
+        "api/v1/platform/billing/bands/<slug:code>/",
+        "api/v1/platform/billing/invoices/",
+        "api/v1/platform/billing/invoices/<uuid:pk>/",
+        "api/v1/platform/billing/modules/",
+        "api/v1/platform/billing/modules/<slug:code>/",
+        "api/v1/platform/billing/payments/",
+        "api/v1/platform/billing/pricing/",
+        "api/v1/platform/billing/rules/",
+        "api/v1/platform/billing/sms-bundles/",
+        "api/v1/platform/billing/sms-bundles/<slug:code>/",
+        "api/v1/platform/overview/",
+        "api/v1/platform/registrations/",
+        "api/v1/platform/registrations/<uuid:pk>/",
+        "api/v1/platform/registrations/<uuid:pk>/approve/",
+        "api/v1/platform/registrations/<uuid:pk>/reject/",
+        "api/v1/platform/registrations/<uuid:pk>/retry/",
+        "api/v1/platform/system/",
+        "api/v1/platform/system/operations/",
+        "api/v1/platform/system/problems/",
+        "api/v1/platform/system/problems/<int:pk>/",
+        "api/v1/platform/system/scan/",
+        "api/v1/platform/system/security/",
         "api/v1/platform/tenants/",
+        "api/v1/platform/tenants/<slug:slug>/",
+        "api/v1/platform/tenants/<slug:slug>/lifecycle/",
+        "api/v1/platform/tenants/<slug:slug>/modules/",
+        "api/v1/platform/tenants/<slug:slug>/sms/",
+        "api/v1/platform/tenants/<slug:slug>/support/",
+        # Signed-in people's browsers report screen errors (scrubbed, rate-limited).
+        "api/v1/problems/browser/",
+        # The signed-in person's own browsers for push notifications.
+        "api/v1/push/",
         "api/v1/registrations/",
         "api/v1/registrations/slug-check/",
     ]

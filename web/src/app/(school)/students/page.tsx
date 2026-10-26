@@ -20,7 +20,7 @@ import {
 } from "@/components/ui";
 import { api, type Paged, type Student } from "@/lib/api";
 import { useArms, useSchool } from "@/lib/hooks";
-import { isLeader } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 
 type ImportReport = {
   rows: number;
@@ -30,8 +30,12 @@ type ImportReport = {
 };
 
 export default function StudentsPage() {
-  const { roles } = useSchool();
-  const canManage = isLeader(roles);
+  const { can } = useSchool();
+  const canManage = can(PERM.STUDENTS_MANAGE);
+  // Class teachers add pupils straight into their own class; subject teachers can't add any.
+  const ownClassOnly = !canManage && can(PERM.STUDENTS_ADD_OWN_CLASS);
+  const formArms = useArms("form", ownClassOnly);
+  const canAdd = canManage || (ownClassOnly && Boolean(formArms.data?.length));
   const [q, setQ] = useState("");
   const [arm, setArm] = useState("");
   const [creating, setCreating] = useState(false);
@@ -52,11 +56,13 @@ export default function StudentsPage() {
         title="Students"
         description="Search by name or admission number."
         actions={
-          canManage && (
+          canAdd && (
             <>
-              <Button variant="secondary" onClick={() => setImporting(true)}>
-                Import CSV / Excel
-              </Button>
+              {canManage && (
+                <Button variant="secondary" onClick={() => setImporting(true)}>
+                  Import CSV / Excel
+                </Button>
+              )}
               <Button onClick={() => setCreating(true)}>Add student</Button>
             </>
           )
@@ -100,7 +106,7 @@ export default function StudentsPage() {
       )}
 
       <Modal open={creating} onClose={() => setCreating(false)} title="Add a student">
-        <CreateStudent onDone={() => setCreating(false)} />
+        <CreateStudent ownClassOnly={ownClassOnly} onDone={() => setCreating(false)} />
       </Modal>
       <Modal open={importing} onClose={() => setImporting(false)} title="Import students">
         <ImportStudents onDone={() => setImporting(false)} />
@@ -109,9 +115,9 @@ export default function StudentsPage() {
   );
 }
 
-function CreateStudent({ onDone }: { onDone: () => void }) {
+function CreateStudent({ ownClassOnly, onDone }: { ownClassOnly: boolean; onDone: () => void }) {
   const client = useQueryClient();
-  const arms = useArms();
+  const arms = useArms(ownClassOnly ? "form" : false);
   const create = useMutation({
     mutationFn: (body: Record<string, unknown>) => api.post<Student>("/api/v1/students", body),
     onSuccess: () => {
@@ -144,9 +150,22 @@ function CreateStudent({ onDone }: { onDone: () => void }) {
           <option value="male">Male</option>
         </Select>
       </Field>
-      <Field label="Class">
-        <Select name="arm">
-          <option value="">Not assigned</option>
+      <Field
+        label="Class"
+        hint={
+          ownClassOnly
+            ? "Pupils you add join your class straight away."
+            : "They join this class straight away: its registers, score sheets and report cards."
+        }
+      >
+        <Select
+          name="arm"
+          required
+          defaultValue={ownClassOnly && arms.data?.length === 1 ? arms.data[0]?.id : ""}
+        >
+          <option value="" disabled>
+            Choose a class
+          </option>
           {arms.data?.map((a) => (
             <option key={a.id} value={a.id}>
               {a.label}

@@ -38,7 +38,7 @@ which each school overrides in its profile.
 | Jobs | Celery 5.6, Redis protocol (Valkey) | Keep. |
 | Files | django-storages S3, per-school prefix | Keep. |
 | PDFs | ReportLab 5 | Keep. |
-| Authentication | django-allauth 65 headless: passkeys, TOTP, recovery codes, JWT for mobile | Kept and extended (D1, 23 Oct 2026): self-service owner sign-up, email codes, new screens. See [04](04-identity.md). |
+| Authentication | django-allauth 65 headless: TOTP, recovery codes, JWT for mobile | Kept and extended (D1, 23 Oct 2026): self-service owner sign-up, email codes, new screens. See [04](04-identity.md). |
 | Authorization | Custom role → permission table, selectors, fail-closed DRF permissions | Keep and extend (modules, platform roles). |
 | Encryption | Per-school data keys (KMS-wrapped), field encryption, blind indexes | Keep. |
 | Audit | Per-school hash-chained log, S3 export | Keep; add a platform-level log. |
@@ -57,7 +57,7 @@ No migration away from the current stack is proposed.
 | Area | Built | Evidence |
 |---|---|---|
 | Tenancy | DB per school, cells, provisioning command, wave migrations, suspension status gate | `control_plane/`, `test_tenant_isolation.py`, `test_provisioning_and_migrations.py` |
-| Identity | Invite-only accounts, passkeys, TOTP, staff MFA gate, password reset, breached-password check | `test_authorization.py`, `test_security_baseline.py` |
+| Identity | Invite-only accounts, TOTP, staff MFA gate, password reset, breached-password check | `test_authorization.py`, `test_security_baseline.py` |
 | Members | Invite, roles, deactivate, resend, no escalation | `test_academics_and_members.py` |
 | Academics | Sessions, terms, KG–JHS levels, arms, GES subjects, teaching assignments, timetable with clash checks | same |
 | Students | Records, guardians, CSV/Excel import (all-or-nothing, dry run), encrypted sensitive fields | `test_students_and_admissions.py`, `test_crypto_and_audit.py` |

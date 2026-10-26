@@ -231,7 +231,7 @@ function AccountStep({ onCreated }: { onCreated: (email: string) => void }) {
               <Link
                 href="/legal/terms"
                 target="_blank"
-                className="font-medium text-brand underline-offset-2 hover:underline"
+                className="font-medium text-link underline-offset-2 hover:underline"
               >
                 terms of service
               </Link>{" "}
@@ -239,7 +239,7 @@ function AccountStep({ onCreated }: { onCreated: (email: string) => void }) {
               <Link
                 href="/legal/privacy"
                 target="_blank"
-                className="font-medium text-brand underline-offset-2 hover:underline"
+                className="font-medium text-link underline-offset-2 hover:underline"
               >
                 privacy notice
               </Link>
@@ -255,7 +255,7 @@ function AccountStep({ onCreated }: { onCreated: (email: string) => void }) {
       </form>
       <p className="mt-6 text-center text-sm text-neutral-500">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-brand hover:text-brand-strong">
+        <Link href="/login" className="font-medium text-link hover:text-link-hover">
           Sign in
         </Link>
       </p>

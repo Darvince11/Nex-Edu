@@ -12,7 +12,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.lib.utils import ImageReader
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 # Nex Edu logo colours (see web/src/app/globals.css).
 BRAND = colors.HexColor("#0c63d9")
@@ -29,8 +29,28 @@ BODY = ParagraphStyle("body", parent=styles["Normal"], fontSize=9, leading=12)
 SMALL = ParagraphStyle("small", parent=styles["Normal"], fontSize=7.5, textColor=colors.grey)
 
 
+SCHOOL_LOGO_HEIGHT = 18 * mm
+
+
+def school_logo(profile: Any) -> Image | None:
+    """The school's own logo for the top of its documents, if it has one."""
+    from django.core.files.storage import default_storage
+
+    if not getattr(profile, "logo", "") or not default_storage.exists(profile.logo):
+        return None
+    with default_storage.open(profile.logo, "rb") as f:
+        data = io.BytesIO(f.read())
+    width, height = ImageReader(data).getSize()
+    data.seek(0)
+    image = Image(data, width=SCHOOL_LOGO_HEIGHT * width / height, height=SCHOOL_LOGO_HEIGHT)
+    image.hAlign = "CENTER"
+    return image
+
+
 def header(profile: Any, document_title: str) -> list[Any]:
-    lines = [Paragraph(profile.name, TITLE)]
+    logo = school_logo(profile)
+    lines: list[Any] = [logo, Spacer(1, 2 * mm)] if logo else []
+    lines.append(Paragraph(profile.name, TITLE))
     detail = " · ".join(
         p for p in (profile.motto, profile.address, profile.phone, profile.email) if p
     )

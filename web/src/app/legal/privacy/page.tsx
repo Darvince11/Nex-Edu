@@ -24,8 +24,8 @@ export default function PrivacyPage() {
           <li>Your first and last name, and your email address.</li>
           <li>Your password, stored only as a one-way Argon2 hash; we can't read it.</li>
           <li>
-            If you add them: passkeys and authenticator apps (we keep public keys and secrets, never your
-            device).
+            If you set one up: your authenticator app's secret key and recovery codes, stored encrypted; never
+            your phone itself.
           </li>
           <li>When and which version of these terms you accepted.</li>
           <li>
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
         <ul className="list-disc pl-5">
           <li>Every school has its own separate database and its own encryption key.</li>
           <li>Sensitive records, such as health notes and ID numbers, are encrypted again field by field.</li>
-          <li>Staff accounts must use a passkey or authenticator app in addition to a password.</li>
+          <li>Staff accounts must use a code from an authenticator app in addition to a password.</li>
           <li>
             Connections are encrypted (HTTPS), and the security records above can't be edited without
             detection.
@@ -85,7 +85,7 @@ export default function PrivacyPage() {
         </p>
         <p>
           Contact:{" "}
-          <a href="mailto:privacy@nexedu.com.gh" className="font-medium text-brand">
+          <a href="mailto:privacy@nexedu.com.gh" className="font-medium text-link">
             privacy@nexedu.com.gh
           </a>
         </p>

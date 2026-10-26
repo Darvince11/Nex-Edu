@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from apps.communication.models import Delivery, MessagingSettings, Notification
+from apps.communication.models import Delivery, Notification
 from apps.students.models import StudentGuardian
 from control_plane.models import Role
 from control_plane.tenancy import tenant_context
@@ -79,14 +79,7 @@ def test_teachers_message_only_their_own_classes(campus, make_member, assign, ap
         assert denied.status_code == 403
 
 
-def test_sms_monthly_limit_is_enforced(campus, make_member, make_student, api):
-    with tenant_context(campus.tenant):
-        settings_row = MessagingSettings.load()
-        settings_row.sms_monthly_limit = 1
-        settings_row.save()
-    for phone in ("+233244123456", "+233551234567"):
-        _guardian(campus.tenant, make_student(campus.tenant, arm=campus.jhs1), phone=phone)
-    admin = api(make_member(campus.tenant, Role.ADMIN), campus.tenant)
+def _announce_by_sms(admin):
     created = admin.post(
         "/api/v1/communication/announcements/",
         {
@@ -98,11 +91,30 @@ def test_sms_monthly_limit_is_enforced(campus, make_member, make_student, api):
         format="json",
     )
     admin.post(f"/api/v1/communication/announcements/{created.data['id']}/publish/")
+
+
+def test_sms_stop_at_the_allowance_then_use_bought_bundles(campus, make_member, make_student, api):
+    from control_plane.models import BillingSettings, SmsCredit
+    from control_plane.subscriptions import add_sms
+
+    billing = BillingSettings.load()
+    billing.sms_included_monthly = 1
+    billing.save()
+    for phone in ("+233244123456", "+233551234567", "+233201234567"):
+        _guardian(campus.tenant, make_student(campus.tenant, arm=campus.jhs1), phone=phone)
+    admin = api(make_member(campus.tenant, Role.ADMIN), campus.tenant)
+    _announce_by_sms(admin)
     with tenant_context(campus.tenant):
         statuses = sorted(Delivery.objects.values_list("status", flat=True))
-        assert statuses == ["sent", "skipped"]
+        assert statuses == ["sent", "skipped", "skipped"]
     usage = admin.get("/api/v1/communication/deliveries/usage/").data
-    assert usage == {"sms_sent_this_month": 1, "sms_monthly_limit": 1}
+    assert usage == {"sms_sent_this_month": 1, "sms_monthly_limit": 1, "sms_bought": 0}
+
+    add_sms(campus.tenant, 5)  # a bundle bought through Paystack
+    _announce_by_sms(admin)
+    with tenant_context(campus.tenant):
+        assert Delivery.objects.filter(status="sent").count() == 4
+    assert SmsCredit.objects.get(tenant=campus.tenant).balance == 2
 
 
 def test_inbox_is_private_and_mark_read(campus, make_member, api):

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
@@ -9,6 +10,7 @@ import {
   useEffect,
   useRef,
 } from "react";
+import { ApiError } from "@/lib/api";
 
 export function PageHeader({
   title,
@@ -40,7 +42,7 @@ export function Card({
   actions?: ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+    <section className="rounded-card border border-neutral-200 bg-white p-4 shadow-card dark:border-neutral-800 dark:bg-neutral-900">
       {(title || actions) && (
         <div className="mb-3 flex items-center justify-between gap-2">
           {title && <h2 className="font-medium">{title}</h2>}
@@ -54,7 +56,7 @@ export function Card({
 
 export function Stat({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <div className="rounded-card border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <div className="text-sm text-neutral-500">{label}</div>
       <div className="mt-1 text-2xl font-semibold tabular-nums">{value}</div>
       {hint && <div className="mt-1 text-xs text-neutral-500">{hint}</div>}
@@ -86,7 +88,7 @@ export function Button({
     <button
       type="button"
       disabled={disabled || busy}
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium disabled:opacity-60 ${styles} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-control px-3 py-2 text-sm font-medium disabled:opacity-60 ${styles} ${className}`}
       {...rest}
     >
       {busy && (
@@ -181,14 +183,63 @@ export function Alert({
     warning: "bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100",
   }[tone];
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={`rounded-md p-3 text-sm ${styles}`}>
+    <div role={tone === "error" ? "alert" : "status"} className={`rounded-control p-3 text-sm ${styles}`}>
       {children}
+    </div>
+  );
+}
+
+/** Shown when the API says this person's role doesn't allow what the page needs. */
+export function Forbidden({ children, title }: { children?: ReactNode; title?: string }) {
+  return (
+    <div
+      role="status"
+      className="flex flex-col items-center gap-2 rounded-card border border-neutral-200 p-8 text-center dark:border-neutral-800"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        className="size-8 text-neutral-400"
+        aria-hidden="true"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="4.5" y="10.5" width="15" height="10" rx="2" />
+        <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" />
+      </svg>
+      <p className="font-medium">{title ?? "You don't have access to this"}</p>
+      <p className="max-w-sm text-sm text-neutral-500">
+        {children ??
+          "Your role at this school doesn't include it. Ask your head teacher or administrator if you need it."}
+      </p>
     </div>
   );
 }
 
 export function ErrorText({ error }: { error: unknown }) {
   if (!error) return null;
+  if (error instanceof ApiError && error.status === 403) {
+    if (error.code === "module_disabled") {
+      return (
+        <Forbidden title="This feature is switched off">
+          Your school has switched this feature off. The proprietor can switch it on under Settings, Modules.
+        </Forbidden>
+      );
+    }
+    if (error.code === "mfa_enrollment_required") {
+      return (
+        <Alert tone="warning">
+          Set up an authenticator app to see school records.{" "}
+          <Link href="/security" className="font-medium underline">
+            Set one up
+          </Link>
+        </Alert>
+      );
+    }
+    return <Forbidden />;
+  }
   return <Alert tone="error">{error instanceof Error ? error.message : "Something went wrong."}</Alert>;
 }
 
@@ -206,7 +257,12 @@ export function Loading() {
 
 export function Table({ head, children }: { head: ReactNode[]; children: ReactNode }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800">
+    // Focusable so keyboard users can scroll a wide table sideways (WCAG 2.1.1).
+    <div
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be reachable by keyboard.
+      tabIndex={0}
+      className="overflow-x-auto rounded-card border border-neutral-200 focus-visible:outline-2 focus-visible:outline-brand dark:border-neutral-800"
+    >
       <table className="w-full text-left text-sm">
         <thead className="bg-neutral-50 text-neutral-600 dark:bg-neutral-900 dark:text-neutral-400">
           <tr>
@@ -251,7 +307,7 @@ export function Modal({
     <dialog
       ref={ref}
       onClose={onClose}
-      className="m-auto w-full max-w-lg rounded-xl bg-white p-0 text-neutral-900 shadow-xl backdrop:bg-black/40 dark:bg-neutral-900 dark:text-neutral-100"
+      className="m-auto w-full max-w-lg rounded-card bg-white p-0 text-neutral-900 shadow-xl backdrop:bg-black/40 dark:bg-neutral-900 dark:text-neutral-100"
     >
       <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
         <h2 className="font-medium">{title}</h2>

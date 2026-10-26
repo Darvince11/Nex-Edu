@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Logo } from "./brand";
+import { ThemeToggle } from "./theme-toggle";
 
 /** Layout for legal pages. Every page says plainly that it's a draft until counsel signs it off. */
 export function LegalPage({
@@ -19,13 +20,14 @@ export function LegalPage({
           <Link href="/login" aria-label="Nex Edu">
             <Logo className="h-9" />
           </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/legal/privacy" className="text-neutral-600 hover:text-brand dark:text-neutral-300">
+          <nav className="flex items-center gap-4 text-sm">
+            <Link href="/legal/privacy" className="text-neutral-600 hover:text-link dark:text-neutral-300">
               Privacy
             </Link>
-            <Link href="/legal/terms" className="text-neutral-600 hover:text-brand dark:text-neutral-300">
+            <Link href="/legal/terms" className="text-neutral-600 hover:text-link dark:text-neutral-300">
               Terms
             </Link>
+            <ThemeToggle />
           </nav>
         </div>
       </header>

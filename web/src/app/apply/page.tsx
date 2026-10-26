@@ -7,6 +7,7 @@ import { ApplicationForm } from "@/components/application-form";
 import { LogoMark } from "@/components/brand";
 import { Alert, Loading } from "@/components/ui";
 import { apiFetch } from "@/lib/api";
+import { PUBLIC_SCHOOL_LOGO, useSchoolLogo } from "@/lib/hooks";
 
 export default function ApplyPage() {
   return (
@@ -23,6 +24,8 @@ export default function ApplyPage() {
 function Apply() {
   const school = useSearchParams().get("school") ?? undefined;
   const [reference, setReference] = useState<string | null>(null);
+  // On a school's own subdomain the server knows the school even without ?school=.
+  const logo = useSchoolLogo(PUBLIC_SCHOOL_LOGO, school, true);
   const options = useQuery({
     queryKey: ["public-admissions", school],
     queryFn: () =>
@@ -33,6 +36,14 @@ function Apply() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
+      {logo && (
+        // biome-ignore lint/performance/noImgElement: a local blob URL; next/image can't optimise it.
+        <img
+          src={logo}
+          alt={options.data ? `${options.data.school} logo` : "School logo"}
+          className="mb-5 h-16 w-auto"
+        />
+      )}
       <h1 className="text-2xl font-semibold">
         {options.data ? `Apply to ${options.data.school}` : "School admission"}
       </h1>

@@ -47,7 +47,8 @@ jobs:
           SQS_QUEUE_URL_CRITICAL_PAYMENTS: ci
           SQS_QUEUE_URL_NOTIFICATIONS: ci
           SQS_QUEUE_URL_REPORTS: ci
-          DJANGO_ALLOWED_HOSTS: api.nexedu.ng
+          FILES_BUCKET: ci
+          DJANGO_ALLOWED_HOSTS: api.nexedu.com.gh,.nexedu.com.gh
         run: uv run python manage.py check --deploy --fail-level WARNING --settings=config.settings.prod
       - name: Dependency vulnerabilities
         run: uv run pip-audit --strict --progress-spinner off
@@ -81,6 +82,42 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm audit --prod --audit-level high
+
+  # Browser tests: real API + production web build on their own ports and data
+  # (web/e2e/servers), including WCAG 2.2 AA checks in light and dark mode.
+  e2e:
+    runs-on: ubuntu-24.04
+    needs: [backend, web]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+      - run: uv sync --locked
+        working-directory: backend
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: web
+      - run: pnpm e2e
+        working-directory: web
+      - if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report
+            web/test-results
 
   security:
     runs-on: ubuntu-24.04

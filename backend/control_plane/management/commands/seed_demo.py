@@ -11,11 +11,13 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.utils import timezone
 
-from control_plane.models import Membership, Role, Tenant, User
+from control_plane.audit import record_platform_event
+from control_plane.models import Membership, PlatformRole, PlatformStaff, Role, Tenant, User
 from control_plane.provisioning.service import provision_tenant
 from control_plane.tenancy import tenant_context
 
 DEMO_PASSWORD = "NexEdu-demo-2026!"  # noqa: S105 - local demo only; command refuses without DEBUG
+SUPER_ADMIN_EMAIL = "admin@nexedu.test"
 FIRST = [
     "Kwame",
     "Ama",
@@ -100,6 +102,20 @@ class Command(BaseCommand):
         parent = _user("parent@greenfield.test", "Akosua", "Mensah", "+233244123456")
         Membership.objects.get_or_create(user=parent, tenant=tenant, role=Role.PARENT)
 
+        # Nex Edu super admin (platform console). The console reminds them to add an
+        # authenticator app; it isn't required.
+        admin = _user(SUPER_ADMIN_EMAIL, "Nex", "Admin")
+        staff_row, created = PlatformStaff.objects.get_or_create(
+            user=admin, defaults={"role": PlatformRole.SUPER_ADMIN}
+        )
+        if created:
+            record_platform_event(
+                action="platform_staff.granted",
+                target=staff_row,
+                data={"email": admin.email, "role": staff_row.role, "via": "seed_demo"},
+                reason="Local demo super admin",
+            )
+
         with tenant_context(tenant):
             self._populate(tenant, staff, teacher, parent, rng)
 
@@ -107,8 +123,9 @@ class Command(BaseCommand):
         self.stdout.write(f"Password for every demo login: {DEMO_PASSWORD}\n")
         for email, role, *_ in STAFF:
             self.stdout.write(f"  {Role(role).label:<22} {email}")
-        self.stdout.write(f"  {'Parent':<22} parent@greenfield.test  (no MFA needed)\n")
-        self.stdout.write("Staff are asked to set up an authenticator app or passkey on first use.")
+        self.stdout.write(f"  {'Parent':<22} parent@greenfield.test")
+        self.stdout.write(f"  {'Nex Edu super admin':<22} {SUPER_ADMIN_EMAIL}  (console)\n")
+        self.stdout.write("Staff can add an authenticator app from their profile (optional).")
 
     def _populate(
         self, tenant: Tenant, staff: dict, teacher: User, parent: User, rng: random.Random

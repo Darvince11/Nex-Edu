@@ -14,7 +14,7 @@ from django.utils import timezone
 _LINKISH = re.compile(r"(://|www\.|\.(com|net|org|xyz|top|ru|info)\b)", re.IGNORECASE)
 
 
-def _clean_name(value: str) -> str:
+def clean_person_name(value: str) -> str:
     value = " ".join(value.split())
     if not value:
         raise forms.ValidationError("Enter your name.")
@@ -43,10 +43,10 @@ class SignupForm(forms.Form):
         return cleaned
 
     def clean_first_name(self) -> str:
-        return _clean_name(self.cleaned_data["first_name"])
+        return clean_person_name(self.cleaned_data["first_name"])
 
     def clean_last_name(self) -> str:
-        return _clean_name(self.cleaned_data["last_name"])
+        return clean_person_name(self.cleaned_data["last_name"])
 
     def signup(self, request: HttpRequest, user: Any) -> None:
         """Called by allauth once the account exists. Records Act 843 consent."""

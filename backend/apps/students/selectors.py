@@ -18,15 +18,17 @@ from apps.academics.models import TeachingAssignment
 from control_plane.models import Role
 from control_plane.tenancy import require_tenant
 from core.crypto import blind_index
-from core.rbac import SCHOOL_WIDE_STUDENT_ROLES
+from core.rbac import SCHOOL_WIDE_STUDENT_ROLES, Perm
 
 from .models import Student
 
 
-def visible_students(user: Any, roles: Iterable[str]) -> QuerySet[Student]:
+def visible_students(
+    user: Any, roles: Iterable[str], permissions: Iterable[str] = ()
+) -> QuerySet[Student]:
     roles = set(roles)
     queryset = Student.objects.select_related("arm__level")
-    if roles & SCHOOL_WIDE_STUDENT_ROLES:
+    if roles & SCHOOL_WIDE_STUDENT_ROLES or Perm.STUDENTS_VIEW_ALL in set(permissions):
         return queryset.all()
 
     condition = Q(pk__in=[])

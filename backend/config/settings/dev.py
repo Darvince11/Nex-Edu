@@ -36,6 +36,7 @@ HEADLESS_FRONTEND_URLS = {
 }
 
 MAILERS = {"default": {"BACKEND": "django.core.mail.backends.console.EmailBackend"}}
-MFA_WEBAUTHN_ALLOW_INSECURE_ORIGIN = True
 BREACHED_PASSWORD_CHECK_ENABLED = False
 CELERY_TASK_ALWAYS_EAGER = True
+# No worker locally: long tasks (school set-up) run on a thread, not inside the request.
+TASKS_IN_THREADS = True

@@ -1,8 +1,10 @@
 """School registration: an owner asks for a workspace and platform staff decide.
 
-The owner's membership is created only after the school's database exists, in
-the same transaction that marks the request approved. A failed or rejected
-request leaves no membership behind.
+Approval has two parts. ``start_approval`` records the decision and is quick
+enough for a web request. ``complete_approval`` creates the school's database,
+which can take a minute, so it runs in a background job (tasks.py). The owner's
+membership is created only after the database exists, in the same transaction
+that marks the request approved; a failed or rejected request leaves none.
 """
 
 from __future__ import annotations
@@ -21,12 +23,14 @@ from integrations.phone import normalize_gh_phone
 
 from .audit import record_platform_event
 from .models import Membership, Role, SchoolRegistration, Tenant, User
-from .provisioning.service import provision_tenant, validate_slug
+from .provisioning.service import discard_tenant, provision_tenant, validate_slug
 from .tenancy import tenant_context
 
 logger = logging.getLogger(__name__)
 
-LIVE = (SchoolRegistration.Status.PENDING, SchoolRegistration.Status.APPROVED)
+Status = SchoolRegistration.Status
+OPEN = (Status.PENDING, Status.PROVISIONING)
+LIVE = (Status.PENDING, Status.PROVISIONING, Status.APPROVED)
 
 # Which class levels a school runs, by the type chosen at registration.
 SECTIONS_BY_TYPE = {
@@ -64,9 +68,7 @@ def submit_registration(
 
     try:
         with transaction.atomic():
-            if SchoolRegistration.objects.filter(
-                owner=owner, status=SchoolRegistration.Status.PENDING
-            ).exists():
+            if SchoolRegistration.objects.filter(owner=owner, status__in=OPEN).exists():
                 raise ValidationError("You already have a registration under review.")
             registration = SchoolRegistration.objects.create(
                 owner=owner,
@@ -96,17 +98,67 @@ def submit_registration(
     return registration
 
 
-def approve_registration(
-    registration: SchoolRegistration, *, reviewer: User | None = None, note: str = ""
-) -> Tenant:
+def _check_reviewable(registration: SchoolRegistration, reviewer: User | None) -> None:
     if registration.status != SchoolRegistration.Status.PENDING:
         raise ValidationError(f"This registration is {registration.get_status_display().lower()}.")
+    # Separation of duties: platform staff can't approve a school they applied for.
+    if reviewer is not None and reviewer.pk == registration.owner_id:
+        raise ValidationError("You can't review your own registration.")
+
+
+def start_approval(
+    registration: SchoolRegistration, *, reviewer: User | None = None, note: str = ""
+) -> SchoolRegistration:
+    """Record the decision and mark the request as being set up. Quick: safe in a request.
+
+    The row lock means two reviewers clicking Approve together can't both start set-up.
+    """
+    with transaction.atomic():
+        registration = (
+            SchoolRegistration.objects.select_for_update()
+            .select_related("owner")
+            .get(pk=registration.pk)
+        )
+        _check_reviewable(registration, reviewer)
+        registration.status = Status.PROVISIONING
+        registration.reviewed_by = reviewer
+        registration.reviewed_at = timezone.now()
+        registration.review_note = note[:500]
+        registration.save(update_fields=["status", "reviewed_by", "reviewed_at", "review_note"])
+        record_platform_event(
+            action="registration.approval_started",
+            actor=reviewer,
+            target=registration,
+            reason=note,
+        )
+    return registration
+
+
+def complete_approval(registration_id: Any) -> Tenant | None:
+    """Create the school, then make the applicant its owner. Runs in a background job.
+
+    Safe to run twice: anything not waiting for set-up is left alone.
+    """
+    registration = SchoolRegistration.objects.select_related("owner", "reviewed_by").get(
+        pk=registration_id
+    )
+    if registration.status != Status.PROVISIONING:
+        logger.info(
+            "Registration %s is %s; nothing to set up", registration.pk, registration.status
+        )
+        return None
+    reviewer = registration.reviewed_by
+    tenant = None
     try:
         tenant = provision_tenant(slug=registration.slug, name=registration.school_name)
         with tenant_context(tenant):
             _apply_registration_details(registration)
     except Exception as exc:
-        registration.status = SchoolRegistration.Status.FAILED
+        if tenant is not None:  # the database exists but the details didn't apply
+            tenant.status = Tenant.Status.FAILED
+            tenant.save(update_fields=["status"])
+            discard_tenant(tenant)
+        registration.status = Status.FAILED
         registration.review_note = "Setup failed; platform staff have been alerted."
         registration.save(update_fields=["status", "review_note"])
         record_platform_event(
@@ -119,34 +171,102 @@ def approve_registration(
 
     with transaction.atomic():
         Membership.objects.get_or_create(user=registration.owner, tenant=tenant, role=Role.OWNER)
-        registration.status = SchoolRegistration.Status.APPROVED
+        registration.status = Status.APPROVED
         registration.tenant = tenant
-        registration.reviewed_by = reviewer
-        registration.reviewed_at = timezone.now()
-        registration.review_note = note[:500]
-        registration.save()
+        registration.save(update_fields=["status", "tenant"])
         record_platform_event(
             action="registration.approved",
             actor=reviewer,
             tenant=tenant,
             target=registration,
-            reason=note,
+            reason=registration.review_note,
         )
     _notify(
         registration,
         f"{registration.school_name} is ready on Nex Edu",
         f"Good news: {registration.school_name} has been approved.\n\n"
         f"Sign in at {settings.FRONTEND_URL}/login with {registration.owner.email}. "
-        "You'll be asked to set up a passkey or authenticator app before you see school records.",
+        "Your dashboard has a short checklist to get the school ready: profile, logo, "
+        "term dates, fees, staff, pupils and parents.",
     )
+    return tenant
+
+
+def retry_setup(registration: SchoolRegistration, *, reviewer: User) -> SchoolRegistration:
+    """Try a failed set-up again (super admin). The earlier attempt's database must
+    be gone first; ``discard_tenant`` removed it, or the sweep will."""
+    with transaction.atomic():
+        registration = SchoolRegistration.objects.select_for_update().get(pk=registration.pk)
+        if registration.status != Status.FAILED:
+            raise ValidationError("Only a failed set-up can be tried again.")
+        if reviewer.pk == registration.owner_id:
+            raise ValidationError("You can't review your own registration.")
+        leftover = Tenant.objects.filter(slug=registration.slug).first()
+        if leftover is not None and not (
+            leftover.status in (Tenant.Status.FAILED, Tenant.Status.PROVISIONING)
+            and discard_tenant(leftover)
+        ):
+            raise ValidationError(
+                "The earlier attempt's database is still being removed. Try again in a few minutes."
+            )
+        registration.status = Status.PROVISIONING
+        registration.reviewed_by = reviewer
+        registration.reviewed_at = timezone.now()
+        registration.save(update_fields=["status", "reviewed_by", "reviewed_at"])
+        record_platform_event(
+            action="registration.setup_retried", actor=reviewer, target=registration
+        )
+    return registration
+
+
+STUCK_AFTER = timezone.timedelta(minutes=30)
+
+
+def sweep_stuck_setups() -> int:
+    """Set-ups still running after 30 minutes crashed somewhere (a worker restart, say):
+    mark them failed, alert platform staff, and remove what they left behind.
+    Also retries removing leftovers whose first clean-up failed. Returns schools swept."""
+    cutoff = timezone.now() - STUCK_AFTER
+    swept = 0
+    for registration in SchoolRegistration.objects.filter(
+        status=Status.PROVISIONING, reviewed_at__lt=cutoff
+    ):
+        registration.status = Status.FAILED
+        registration.review_note = "Setup didn't finish; platform staff have been alerted."
+        registration.save(update_fields=["status", "review_note"])
+        record_platform_event(
+            action="registration.failed",
+            target=registration,
+            data={"error": "set-up did not finish within 30 minutes"},
+        )
+        logger.error("School set-up for %s didn't finish and was stopped", registration.slug)
+        swept += 1
+    for tenant in Tenant.objects.filter(
+        status__in=[Tenant.Status.FAILED, Tenant.Status.PROVISIONING], created_at__lt=cutoff
+    ):
+        if discard_tenant(tenant):
+            swept += 1
+    return swept
+
+
+def approve_registration(
+    registration: SchoolRegistration, *, reviewer: User | None = None, note: str = ""
+) -> Tenant:
+    """Approve and set up in one go (the review command). The web console uses
+    start_approval plus the background job instead."""
+    start_approval(registration, reviewer=reviewer, note=note)
+    tenant = complete_approval(registration.pk)
+    if tenant is None:  # pragma: no cover - start_approval just set PROVISIONING
+        raise ValidationError("This registration couldn't be set up.")
     return tenant
 
 
 def reject_registration(
     registration: SchoolRegistration, *, reviewer: User | None = None, note: str
 ) -> None:
-    if registration.status != SchoolRegistration.Status.PENDING:
-        raise ValidationError(f"This registration is {registration.get_status_display().lower()}.")
+    _check_reviewable(registration, reviewer)
+    if not note.strip():
+        raise ValidationError({"note": "Give a reason. The applicant will see it."})
     registration.status = SchoolRegistration.Status.REJECTED
     registration.reviewed_by = reviewer
     registration.reviewed_at = timezone.now()

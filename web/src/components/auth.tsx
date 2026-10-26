@@ -13,6 +13,7 @@ import {
 } from "react";
 import { formatEmailCode, type PasswordRule } from "@/lib/auth";
 import { Logo } from "./brand";
+import { ThemeToggle } from "./theme-toggle";
 
 /* Icons: inline so no icon library ships to slow connections. */
 type IconProps = { className?: string };
@@ -84,8 +85,8 @@ export function CheckCircleIcon({ className = "size-5" }: IconProps) {
 const TRUST = [
   {
     icon: KeyIcon,
-    title: "Passkeys and two-step sign-in",
-    text: "Staff accounts always need a second step.",
+    title: "Two-step sign-in",
+    text: "Staff enter a code from an authenticator app.",
   },
   {
     icon: LockIcon,
@@ -150,7 +151,10 @@ export function AuthShell({ children, wide = false }: { children: ReactNode; wid
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-8">
+        <div className="flex justify-end px-4 pt-4 sm:px-8">
+          <ThemeToggle />
+        </div>
+        <main className="flex flex-1 items-center justify-center px-4 pb-10 sm:px-8">
           <div className={`w-full ${wide ? "max-w-lg" : "max-w-sm"}`}>
             <Link href="/login" className="mb-8 block w-fit lg:hidden" aria-label="Nex Edu">
               <Logo className="h-11" />
@@ -159,13 +163,13 @@ export function AuthShell({ children, wide = false }: { children: ReactNode; wid
           </div>
         </main>
         <footer className="flex flex-wrap justify-center gap-x-5 gap-y-1 px-4 pb-6 text-xs text-neutral-500">
-          <Link href="/legal/privacy" className="hover:text-brand">
+          <Link href="/legal/privacy" className="hover:text-link">
             Privacy notice
           </Link>
-          <Link href="/legal/terms" className="hover:text-brand">
+          <Link href="/legal/terms" className="hover:text-link">
             Terms of service
           </Link>
-          <a href="mailto:support@nexedu.com.gh" className="hover:text-brand">
+          <a href="mailto:support@nexedu.com.gh" className="hover:text-link">
             Help
           </a>
         </footer>
@@ -293,7 +297,7 @@ export function PasswordInput(props: InputHTMLAttributes<HTMLInputElement> & { i
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? "Hide password" : "Show password"}
           aria-pressed={visible}
-          className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-md text-neutral-500 hover:text-brand focus-visible:text-brand focus-visible:outline-2 focus-visible:outline-brand"
+          className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-md text-neutral-500 hover:text-link focus-visible:text-link focus-visible:outline-2 focus-visible:outline-brand"
         >
           <EyeIcon off={visible} />
         </button>
@@ -355,16 +359,6 @@ export function EmailCodeInput({
       placeholder="XXXX-XXXX"
       className="h-14 text-center font-mono text-2xl tracking-[0.35em] uppercase placeholder:tracking-[0.35em] placeholder:text-neutral-300 dark:placeholder:text-neutral-700"
     />
-  );
-}
-
-export function Divider({ children }: { children: ReactNode }) {
-  return (
-    <div className="my-6 flex items-center gap-3 text-xs text-neutral-500">
-      <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
-      {children}
-      <span className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
-    </div>
   );
 }
 

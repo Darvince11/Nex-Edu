@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { FormEvent, ReactNode } from "react";
+import { type ChangeEvent, type FormEvent, type ReactNode, useRef, useState } from "react";
+import { useSetupAction, useSetupChecklist } from "@/components/setup-checklist";
 import { Alert, Button, Card, ErrorText, Field, Input, Loading, PageHeader, Textarea } from "@/components/ui";
-import { api } from "@/lib/api";
+import { ApiError, api, apiFetch } from "@/lib/api";
 import { cedis, toPesewas } from "@/lib/format";
-import { useSchool } from "@/lib/hooks";
-import { hasAny } from "@/lib/roles";
+import { SCHOOL_LOGO, useSchool, useSchoolLogo } from "@/lib/hooks";
+import { PERM } from "@/lib/permissions";
 
 type Profile = Record<string, string>;
 type PaymentSettings = {
@@ -26,14 +27,16 @@ type MessagingSettings = {
 };
 
 export default function SettingsPage() {
-  const { roles } = useSchool();
-  const leader = hasAny(roles, ["owner", "principal", "admin"]);
-  const finance = hasAny(roles, ["owner", "bursar"]);
+  const { can } = useSchool();
+  const leader = can(PERM.SCHOOL_MANAGE);
+  const finance = can(PERM.FINANCE_MANAGE);
   return (
     <>
       <PageHeader title="School settings" />
       <div className="grid gap-4 lg:grid-cols-2">
+        {leader && <SetupCard />}
         {leader && <ProfileSettings />}
+        {can(PERM.SCHOOL_BRANDING) && <LogoCard />}
         {finance && <PaymentSettingsCard />}
         {leader && <MessagingSettingsCard />}
       </div>
@@ -215,6 +218,113 @@ function MessagingSettingsCard() {
         </label>
         <SaveRow save={save} />
       </form>
+    </Card>
+  );
+}
+
+const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"];
+
+/** The school's own logo: top bar, admission page, report cards and receipts. */
+function LogoCard() {
+  const { slug } = useSchool();
+  const client = useQueryClient();
+  const logo = useSchoolLogo(SCHOOL_LOGO, slug ?? undefined);
+  const input = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string>();
+  const refresh = () => client.invalidateQueries({ queryKey: ["school-logo"] });
+
+  const upload = useMutation({
+    mutationFn: (file: File) => {
+      const body = new FormData();
+      body.append("logo", file);
+      return apiFetch(SCHOOL_LOGO, { method: "PUT", body });
+    },
+    onSuccess: refresh,
+    onError: (e) => setError(e instanceof ApiError ? e.message : "Upload failed. Try again."),
+  });
+  const remove = useMutation({
+    mutationFn: () => apiFetch(SCHOOL_LOGO, { method: "DELETE" }),
+    onSuccess: refresh,
+  });
+
+  function onFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setError(undefined);
+    // Quick checks for a friendly message; the server decodes and re-encodes every upload.
+    if (!LOGO_TYPES.includes(file.type)) return setError("Choose a PNG, JPG or WebP image.");
+    if (file.size > 1024 * 1024) return setError("The logo must be 1 MB or smaller.");
+    upload.mutate(file);
+  }
+
+  return (
+    <Card title="School logo">
+      <div className="flex items-center gap-4">
+        <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900">
+          {logo ? (
+            // biome-ignore lint/performance/noImgElement: a local blob URL; next/image can't optimise it.
+            <img src={logo} alt="Current school logo" className="size-full object-contain p-1" />
+          ) : (
+            <span className="text-xs text-neutral-500">No logo</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-2 text-sm">
+          <p className="text-neutral-500">
+            Shown in your school's workspace, on the admission page, and on report cards and receipts. PNG,
+            JPG or WebP, up to 1 MB. We resize it and remove hidden photo data.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={input}
+              type="file"
+              accept={LOGO_TYPES.join(",")}
+              onChange={onFile}
+              className="sr-only"
+              aria-label="Choose a logo file"
+            />
+            <Button onClick={() => input.current?.click()} busy={upload.isPending}>
+              {logo ? "Replace logo" : "Upload logo"}
+            </Button>
+            {logo && (
+              <Button variant="secondary" onClick={() => remove.mutate()} busy={remove.isPending}>
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+      {error && (
+        <div className="mt-3">
+          <Alert tone="error">{error}</Alert>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/** The set-up checklist's progress, terms acceptance, and a way to bring the list back. */
+function SetupCard() {
+  const checklist = useSetupChecklist(true);
+  const act = useSetupAction();
+  if (!checklist.data) return null;
+  const c = checklist.data;
+  return (
+    <Card title="Set-up checklist">
+      <p className="text-sm">
+        {c.complete ? "All set-up steps are done." : `${c.done} of ${c.total} steps done.`}
+      </p>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+        {c.terms_accepted_at
+          ? `Terms accepted for the school by ${c.terms_accepted_by} on ${new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(new Date(c.terms_accepted_at))}.`
+          : "The proprietor hasn't accepted the terms for the school yet."}
+      </p>
+      <ErrorText error={act.error} />
+      {c.hidden && !c.complete && (
+        <Button className="mt-3" variant="secondary" busy={act.isPending} onClick={() => act.mutate("show")}>
+          Show the checklist on the dashboard
+        </Button>
+      )}
     </Card>
   );
 }

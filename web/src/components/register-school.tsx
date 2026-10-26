@@ -237,7 +237,7 @@ export function RegistrationStatus({ registration }: { registration: Registratio
     return (
       <>
         <AuthHeading title={`${registration.school_name} is ready`}>
-          You're the owner. Before you see any school records, you'll set up a passkey or authenticator app.
+          You're the owner. Before you see any school records, you'll set up an authenticator app.
         </AuthHeading>
         <Link href="/schools" className="btn h-11 w-full">
           Open my school
@@ -262,7 +262,7 @@ export function RegistrationStatus({ registration }: { registration: Registratio
         {registration.status === "rejected" && (
           <p className="mt-6 text-sm text-neutral-500">
             You can send a new registration with corrected details. Questions? Email{" "}
-            <a href="mailto:support@nexedu.com.gh" className="font-medium text-brand">
+            <a href="mailto:support@nexedu.com.gh" className="font-medium text-link">
               support@nexedu.com.gh
             </a>
             .
@@ -273,7 +273,7 @@ export function RegistrationStatus({ registration }: { registration: Registratio
   }
   return (
     <>
-      <div className="mb-6 grid size-12 place-items-center rounded-full bg-brand/10 text-brand">
+      <div className="mb-6 grid size-12 place-items-center rounded-full bg-brand/10 text-link">
         <CheckCircleIcon className="size-7" />
       </div>
       <AuthHeading title="Thanks, we're reviewing your school">
@@ -283,10 +283,7 @@ export function RegistrationStatus({ registration }: { registration: Registratio
         {[
           ["We check your details", "Usually within two working days. We may call the school phone number."],
           ["You get an email", "We'll tell you as soon as your school is approved."],
-          [
-            "Sign in and secure your account",
-            "Set up a passkey or authenticator app, then invite your staff.",
-          ],
+          ["Sign in and secure your account", "Set up an authenticator app, then invite your staff."],
         ].map(([title, text], i) => (
           <li key={title} className="flex gap-3">
             <span className="grid size-7 shrink-0 place-items-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">

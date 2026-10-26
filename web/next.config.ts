@@ -15,6 +15,8 @@ const securityHeaders = [
 ];
 
 const config: NextConfig = {
+  // Browser tests build into their own folder, pointed at their own API (web/e2e/servers).
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,

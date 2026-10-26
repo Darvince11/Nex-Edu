@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useEffect, useState } from "react";
-import { AuthField, AuthHeading, AuthShell, FormAlert, SubmitButton, TextInput } from "@/components/auth";
+import { AuthField, AuthHeading, AuthShell, SubmitButton, TextInput } from "@/components/auth";
 import { getSession, requestPasswordReset } from "@/lib/allauth";
 import { authError } from "@/lib/auth";
 
@@ -81,14 +81,9 @@ function ForgotPassword() {
             </AuthField>
             <SubmitButton busy={busy}>Send reset link</SubmitButton>
           </form>
-          {error === undefined && (
-            <FormAlert tone="info">
-              <span className="block">Staff with a passkey can also sign in with it instead.</span>
-            </FormAlert>
-          )}
           <p className="mt-6 text-center text-sm text-neutral-500">
             Remembered it?{" "}
-            <Link href="/login" className="font-medium text-brand hover:text-brand-strong">
+            <Link href="/login" className="font-medium text-link hover:text-link-hover">
               Sign in
             </Link>
           </p>

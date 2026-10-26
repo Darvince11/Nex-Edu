@@ -63,7 +63,12 @@ users confusing "paid" with "pending". Status is never shown by colour alone: ba
 - WCAG 2.2 AA contrast for text and controls in both themes. Focus is always visible (`ring-brand/30` plus border).
 - Everything is reachable by keyboard; no click-only `div`s.
 - Layouts work from 360 px wide. Tables scroll horizontally inside their card, never the page.
-- Dark mode follows the OS (`prefers-color-scheme`). The logo swaps to a white-navy variant.
+- Light is the default. Dark mode is the person's choice: the sun/moon switch in every top bar, or Appearance on
+  their profile. It's remembered in that browser and applied before the page paints (`lib/theme.ts`), so there's
+  no white flash. The logo swaps to a white-navy variant.
+- Charts (`components/charts.tsx`) use `--chart-1` (brand blue) and `--chart-2` (orange) only, each stepped
+  separately for dark cards and checked with the dataviz palette validator (colour-blind separation, 3:1
+  contrast). Every chart has a table view and works with the keyboard.
 
 ## 5. Verification (each phase)
 

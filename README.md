@@ -14,7 +14,7 @@ Each school has its **own PostgreSQL database**. The full design is in
 
 | Phase | What's in it | State |
 |---|---|---|
-| 0. Foundation | Database-per-school tenancy, passkeys and TOTP, role permissions, per-school encryption, tamper-evident audit log, AWS Terraform, CI | Done, tested |
+| 0. Foundation | Database-per-school tenancy, authenticator-app MFA (TOTP), role permissions, per-school encryption, tamper-evident audit log, AWS Terraform, CI | Done, tested |
 | 1. Core school operations | Academic year and terms, classes and GES subjects, timetable with clash checks, admissions (office and public online form), pupil records and CSV/Excel import, offline-capable attendance, score entry, BECE-graded report cards with positions and aggregates, fees in GH₵ with mobile money (Paystack, Flutterwave), receipts, double-entry ledger, announcements, inbox, SMS (Arkesel) and email | Done, tested |
 | 2. Portals and engagement | Parent and student mobile app, parent–teacher messaging, LMS, events | Next |
 | 3. Operations | Payroll (GRA PAYE, SSNIT), library, transport, hostel, inventory | Later |
@@ -60,9 +60,10 @@ Open http://localhost:3100. Every demo login uses the password `NexEdu-demo-2026
 | Class teacher | teacher@greenfield.test | JHS 1 A only: register, score entry, comments |
 | Bursar | bursar@greenfield.test | Fees, invoices, payments, receipts |
 | Proprietor | owner@greenfield.test | Everything |
+| Nex Edu super admin | admin@nexedu.test | Platform console: approve school registrations, see all schools |
 
-Staff accounts must turn on an authenticator app (Google or Microsoft Authenticator) or a passkey at first
-sign-in. The parent account doesn't need one. The public admission form is at
+An authenticator app (Google or Microsoft Authenticator) is optional: anyone can turn it on from their
+profile, and the platform console reminds Nex Edu staff until they do. The public admission form is at
 http://localhost:3100/apply?school=greenfield.
 
 To try school sign-up, open http://localhost:3100/signup. Locally, emails (including the 8-letter verification
@@ -103,6 +104,7 @@ docs/               Architecture and security plan
 
 # web
 pnpm lint && pnpm typecheck && pnpm test && pnpm build
+pnpm e2e        # browser tests on their own API (8100) and web (3200) with throwaway data; first run: pnpm exec playwright install chromium
 ```
 
 ## Rules for adding a feature module

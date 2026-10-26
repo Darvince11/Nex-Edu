@@ -1,6 +1,6 @@
 /**
- * Navigation by role. This only decides what the menu shows; the API enforces
- * every permission itself, so hiding a link is never the security control.
+ * School roles and role helpers. The menu itself lives in nav.ts. The API
+ * enforces every permission, so these only shape what the UI shows.
  */
 
 export type Role =
@@ -13,6 +13,10 @@ export type Role =
   | "librarian"
   | "warden"
   | "driver"
+  | "nurse"
+  | "canteen"
+  | "store_keeper"
+  | "gate"
   | "parent"
   | "student";
 
@@ -26,34 +30,24 @@ export const ROLE_LABELS: Record<Role, string> = {
   librarian: "Librarian",
   warden: "Hostel warden",
   driver: "Driver",
+  nurse: "School nurse",
+  canteen: "Canteen manager",
+  store_keeper: "Store keeper",
+  gate: "Gate officer",
   parent: "Parent / guardian",
   student: "Student",
+};
+
+/** Nex Edu's own staff (the platform console), not school roles. */
+export const PLATFORM_ROLE_LABELS: Record<string, string> = {
+  super_admin: "Super admin",
+  support: "Support",
+  billing: "Billing",
 };
 
 const LEADERS: Role[] = ["owner", "principal", "admin"];
 const TEACHING: Role[] = ["teacher", "form_teacher"];
 const FINANCE: Role[] = ["owner", "bursar"];
-
-export type NavItem = { href: string; label: string; roles: Role[] };
-
-export const NAV: NavItem[] = [
-  { href: "/dashboard", label: "Overview", roles: [] },
-  { href: "/students", label: "Students", roles: [...LEADERS, ...TEACHING, "bursar"] },
-  { href: "/children", label: "My children", roles: ["parent"] },
-  { href: "/admissions", label: "Admissions", roles: LEADERS },
-  { href: "/attendance", label: "Attendance", roles: [...LEADERS, ...TEACHING] },
-  { href: "/scores", label: "Score entry", roles: [...LEADERS, ...TEACHING] },
-  { href: "/results", label: "Results", roles: [...LEADERS, "form_teacher", "parent", "student"] },
-  { href: "/fees", label: "Fees", roles: [...FINANCE, "principal", "parent"] },
-  { href: "/announcements", label: "Announcements", roles: [] },
-  { href: "/academics", label: "Classes & timetable", roles: [...LEADERS, ...TEACHING] },
-  { href: "/people", label: "People", roles: LEADERS },
-  { href: "/settings", label: "School settings", roles: [...LEADERS, "bursar"] },
-];
-
-export function navFor(roles: string[]): NavItem[] {
-  return NAV.filter((item) => item.roles.length === 0 || item.roles.some((r) => roles.includes(r)));
-}
 
 export const hasAny = (roles: string[], wanted: Role[]) => wanted.some((r) => roles.includes(r));
 export const isLeader = (roles: string[]) => hasAny(roles, LEADERS);

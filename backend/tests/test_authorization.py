@@ -86,9 +86,13 @@ def test_write_needs_manage_permission(tenant, school, make_member, api):
     assert response.status_code == 201, response.content
 
 
-def test_staff_without_mfa_are_blocked(tenant, school, make_member, api):
-    teacher = make_member(tenant, Role.ADMIN, mfa=False)
-    response = api(teacher, tenant).get("/api/v1/students/")
+def test_staff_work_without_an_authenticator_app_unless_the_school_requires_one(
+    tenant, school, make_member, api, settings
+):
+    admin = api(make_member(tenant, Role.ADMIN, mfa=False), tenant)
+    assert admin.get("/api/v1/students/").status_code == 200  # optional by default
+    settings.MFA_REQUIRED_ROLES = frozenset({Role.ADMIN})
+    response = admin.get("/api/v1/students/")
     assert response.status_code == 403
     assert response.data["code"] == "mfa_enrollment_required"
 
@@ -157,6 +161,10 @@ def test_public_endpoints_are_exactly_the_expected_ones():
     )
     assert public == [
         "api/v1/public/admissions/",
+        # A person's private calendar link: the unguessable token is the key.
+        "api/v1/public/calendar/<str:token>/",
+        "api/v1/public/school-logo/",
+        "api/v1/public/site/",
         "api/v1/webhooks/flutterwave/",
         "api/v1/webhooks/paystack/",
     ]

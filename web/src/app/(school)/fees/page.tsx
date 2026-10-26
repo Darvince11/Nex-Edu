@@ -23,7 +23,8 @@ import {
 import { api, download, type Invoice, type Level, type Payment } from "@/lib/api";
 import { cedis, formatDate, toPesewas } from "@/lib/format";
 import { useCurrentTerm, useSchool, useTerms } from "@/lib/hooks";
-import { hasAny, isParentOnly } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
+import { isParentOnly } from "@/lib/roles";
 
 type Summary = {
   billed_pesewas: number;
@@ -42,8 +43,8 @@ export default function FeesPage() {
 }
 
 function Fees() {
-  const { roles } = useSchool();
-  return isParentOnly(roles) ? <ParentFees /> : <BursarFees canManage={hasAny(roles, ["owner", "bursar"])} />;
+  const { roles, can } = useSchool();
+  return isParentOnly(roles) ? <ParentFees /> : <BursarFees canManage={can(PERM.FINANCE_MANAGE)} />;
 }
 
 // --- Parents ---------------------------------------------------------------------

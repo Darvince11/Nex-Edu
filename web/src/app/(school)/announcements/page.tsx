@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useState } from "react";
+import { AnnouncementDrafter, useCanDraft } from "@/components/ai-draft";
 import {
   Alert,
   Badge,
@@ -20,7 +21,7 @@ import {
 import { type Announcement, api, type Level, type Paged } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { useArms, useSchool } from "@/lib/hooks";
-import { hasAny, isLeader } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 
 const AUDIENCES: Record<string, string> = {
   everyone: "Everyone",
@@ -32,8 +33,8 @@ const AUDIENCES: Record<string, string> = {
 };
 
 export default function AnnouncementsPage() {
-  const { roles } = useSchool();
-  const canSend = hasAny(roles, ["owner", "principal", "admin", "teacher", "form_teacher"]);
+  const { can } = useSchool();
+  const canSend = can(PERM.COMMUNICATION_SEND);
   const [creating, setCreating] = useState(false);
   const client = useQueryClient();
   const list = useQuery({
@@ -92,7 +93,7 @@ export default function AnnouncementsPage() {
         <Empty>No announcements yet.</Empty>
       )}
       <Modal open={creating} onClose={() => setCreating(false)} title="New announcement">
-        <Compose leader={isLeader(roles)} onDone={() => setCreating(false)} />
+        <Compose leader={can(PERM.COMMUNICATION_MANAGE)} onDone={() => setCreating(false)} />
       </Modal>
     </>
   );
@@ -107,6 +108,9 @@ function Compose({ leader, onDone }: { leader: boolean; onDone: () => void }) {
     enabled: leader,
   });
   const [audience, setAudience] = useState(leader ? "everyone" : "arm_parents");
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const canDraft = useCanDraft();
   const create = useMutation({
     mutationFn: (body: Record<string, unknown>) => api.post("/api/v1/communication/announcements", body),
     onSuccess: () => {
@@ -129,11 +133,31 @@ function Compose({ leader, onDone }: { leader: boolean; onDone: () => void }) {
   const options = leader ? Object.entries(AUDIENCES) : [["arm_parents", AUDIENCES.arm_parents]];
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
+      {canDraft && (
+        <AnnouncementDrafter
+          onDraft={(t, b) => {
+            setTitle(t.slice(0, 140));
+            setBody(b);
+          }}
+        />
+      )}
       <Field label="Title">
-        <Input name="title" required maxLength={140} />
+        <Input
+          name="title"
+          required
+          maxLength={140}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
       </Field>
       <Field label="Message">
-        <Textarea name="body" required maxLength={5000} />
+        <Textarea
+          name="body"
+          required
+          maxLength={5000}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
       </Field>
       <Field label="Send to">
         <Select value={audience} onChange={(e) => setAudience(e.target.value)}>

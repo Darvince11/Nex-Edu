@@ -153,10 +153,8 @@ def test_approval_creates_the_school_and_then_the_owner(api, staff_reviewer):
     assert "ready on Nex Edu" in mail.outbox[-1].subject
     assert api(user, None).get(URL).data[0]["school_slug"] == "sunrise"
 
-    # The owner still needs a second factor before seeing school records.
-    students = api(user, tenant).get("/api/v1/students/")
-    assert students.status_code == 403
-    assert students.data["code"] == "mfa_enrollment_required"
+    # The new owner can open their school straight away; an authenticator app is optional.
+    assert api(user, tenant).get("/api/v1/students/").status_code == 200
 
     with pytest.raises(CommandError):
         call_command("review_registration", "--approve", registration_id)
@@ -222,3 +220,12 @@ def test_submissions_are_rate_limited(api):
     statuses = [submit(api, user, slug=f"school-{n}").status_code for n in range(11)]
     assert statuses[0] == 201
     assert statuses[-1] == 429
+
+
+@pytest.mark.django_db
+def test_a_school_being_set_up_still_blocks_a_second_request_and_holds_its_address(api):
+    user = owner()
+    registration_id = submit(api, user).data["id"]
+    SchoolRegistration.objects.filter(pk=registration_id).update(status="provisioning")
+    assert submit(api, user, slug="sunrise-two").status_code == 400
+    assert submit(api, owner("other@example.test")).status_code == 400  # "sunrise" is held

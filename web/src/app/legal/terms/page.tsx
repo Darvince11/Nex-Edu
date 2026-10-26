@@ -18,7 +18,10 @@ export default function TermsPage() {
       <LegalSection title="Your account">
         <ul className="list-disc pl-5">
           <li>Give accurate details and keep your email address up to date.</li>
-          <li>Keep your password, passkeys and codes to yourself. Nex Edu staff will never ask for them.</li>
+          <li>
+            Keep your password, authenticator app and codes to yourself. Nex Edu staff will never ask for
+            them.
+          </li>
           <li>
             Tell us straight away at security@nexedu.com.gh if you think someone else has used your account.
           </li>
@@ -52,7 +55,7 @@ export default function TermsPage() {
       <LegalSection title="Personal data">
         <p>
           How we handle personal data is described in the{" "}
-          <Link href="/legal/privacy" className="font-medium text-brand">
+          <Link href="/legal/privacy" className="font-medium text-link">
             privacy notice
           </Link>
           .
@@ -62,7 +65,7 @@ export default function TermsPage() {
       <LegalSection title="Changes and contact">
         <p>
           If we change these terms we'll tell you, and you'll be asked to accept the new version. Questions:{" "}
-          <a href="mailto:support@nexedu.com.gh" className="font-medium text-brand">
+          <a href="mailto:support@nexedu.com.gh" className="font-medium text-link">
             support@nexedu.com.gh
           </a>
           .

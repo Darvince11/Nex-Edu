@@ -40,3 +40,12 @@ export function suggestSlug(name: string): string {
     .slice(0, 40)
     .replace(/-+$/, "");
 }
+
+/** Review states, in the order the platform console shows them. */
+export const REGISTRATION_STATUSES = [
+  { value: "pending", label: "Under review", tone: "amber" },
+  { value: "provisioning", label: "Being set up", tone: "blue" },
+  { value: "approved", label: "Approved", tone: "green" },
+  { value: "rejected", label: "Not approved", tone: "grey" },
+  { value: "failed", label: "Setup failed", tone: "red" },
+] as const;

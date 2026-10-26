@@ -110,7 +110,7 @@ export function VerifyEmailStep({
             type="button"
             onClick={resend}
             disabled={cooldown > 0 || expired}
-            className="font-medium text-brand hover:text-brand-strong disabled:cursor-not-allowed disabled:text-neutral-400"
+            className="font-medium text-link hover:text-link-hover disabled:cursor-not-allowed disabled:text-neutral-400"
           >
             {cooldown > 0 ? `send a new code in ${cooldown}s` : "send a new code"}
           </button>
@@ -118,11 +118,7 @@ export function VerifyEmailStep({
         </p>
         <p>
           Wrong email?{" "}
-          <button
-            type="button"
-            onClick={onRestart}
-            className="font-medium text-brand hover:text-brand-strong"
-          >
+          <button type="button" onClick={onRestart} className="font-medium text-link hover:text-link-hover">
             Start again
           </button>
         </p>

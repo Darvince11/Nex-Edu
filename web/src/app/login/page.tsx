@@ -7,23 +7,13 @@ import {
   AuthField,
   AuthHeading,
   AuthShell,
-  Divider,
   FormAlert,
-  KeyIcon,
   PasswordInput,
   SubmitButton,
   TextInput,
 } from "@/components/auth";
 import { VerifyEmailStep } from "@/components/verify-email";
-import {
-  type AuthResponse,
-  getSession,
-  login,
-  loginWithPasskey,
-  logout,
-  pendingFlow,
-  submitMfaCode,
-} from "@/lib/allauth";
+import { type AuthResponse, getSession, login, logout, pendingFlow, submitMfaCode } from "@/lib/allauth";
 import { authError, safeReturnTo } from "@/lib/auth";
 
 type Step = "password" | "mfa" | "verify";
@@ -49,7 +39,7 @@ function SignIn() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string>();
-  const [busy, setBusy] = useState<"password" | "passkey" | "mfa" | null>(null);
+  const [busy, setBusy] = useState<"password" | "mfa" | null>(null);
 
   useEffect(() => {
     getSession().then((r) => {
@@ -73,15 +63,13 @@ function SignIn() {
     setError(authError(result, "We couldn't sign you in. Check your details and try again."));
   }
 
-  async function run(kind: "password" | "passkey" | "mfa", action: () => Promise<AuthResponse>) {
+  async function run(kind: "password" | "mfa", action: () => Promise<AuthResponse>) {
     setBusy(kind);
     setError(undefined);
     try {
       handle(await action());
     } catch {
-      setError(
-        kind === "passkey" ? "Passkey sign-in was cancelled." : "We couldn't reach Nex Edu. Try again.",
-      );
+      setError("We couldn't reach Nex Edu. Try again.");
     } finally {
       setBusy(null);
     }
@@ -135,11 +123,7 @@ function SignIn() {
           </form>
           <p className="mt-6 text-sm text-neutral-500">
             Lost your device? Use one of your recovery codes, or email support@nexedu.com.gh.{" "}
-            <button
-              type="button"
-              onClick={startOver}
-              className="font-medium text-brand hover:text-brand-strong"
-            >
+            <button type="button" onClick={startOver} className="font-medium text-link hover:text-link-hover">
               Start over
             </button>
           </p>
@@ -159,7 +143,7 @@ function SignIn() {
                     id={id}
                     name="email"
                     type="email"
-                    autoComplete="username webauthn"
+                    autoComplete="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -171,7 +155,7 @@ function SignIn() {
                 aside={
                   <Link
                     href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-                    className="text-sm font-medium text-brand hover:text-brand-strong"
+                    className="text-sm font-medium text-link hover:text-link-hover"
                   >
                     Forgot password?
                   </Link>
@@ -184,21 +168,11 @@ function SignIn() {
               <SubmitButton busy={busy === "password"}>Sign in</SubmitButton>
             </form>
           </div>
-          <Divider>or</Divider>
-          <button
-            type="button"
-            className="btn-secondary h-11 w-full gap-2"
-            disabled={busy !== null}
-            onClick={() => run("passkey", loginWithPasskey)}
-          >
-            <KeyIcon />
-            Sign in with a passkey
-          </button>
-          <div className="mt-8 rounded-xl border border-neutral-200 p-4 text-sm dark:border-neutral-800">
+          <div className="mt-8 rounded-card border border-neutral-200 p-4 text-sm dark:border-neutral-800">
             <p className="font-medium">New to Nex Edu?</p>
             <p className="mt-1 text-neutral-500">
               School owners can{" "}
-              <Link href="/signup" className="font-medium text-brand hover:text-brand-strong">
+              <Link href="/signup" className="font-medium text-link hover:text-link-hover">
                 register a school
               </Link>
               . Staff and parents: use the invitation email your school sent you.

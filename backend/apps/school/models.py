@@ -20,6 +20,16 @@ class SchoolProfile(models.Model):
         max_length=10, default="NXE", help_text="Used in admission numbers, e.g. NXE/2026/0001"
     )
     report_card_footer = models.CharField(max_length=300, blank=True)
+    # Storage key of the school's logo (tenants/<slug>/branding/logo.png), re-encoded
+    # by core.images.clean_logo. Shown in the workspace, admission page and documents.
+    logo = models.CharField(max_length=255, blank=True)
+    # The proprietor accepts Nex Edu's terms and privacy notice for the school
+    # (apps.school.setup). Kept out of the profile form: only that action sets it.
+    terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    terms_accepted_by = models.EmailField(blank=True)
+    terms_version = models.CharField(max_length=20, blank=True)
+    # The set-up checklist was hidden from the dashboard (it can be shown again).
+    setup_hidden_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:

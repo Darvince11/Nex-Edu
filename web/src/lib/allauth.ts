@@ -1,16 +1,9 @@
 /**
  * django-allauth headless "browser" client: sign-up with email codes,
- * email/password, TOTP, passkeys, password reset.
+ * email/password, authenticator apps (TOTP) with recovery codes, password reset.
  * Responses use the envelope { status, data, meta }. A 401 that lists pending
  * flows (e.g. "mfa_authenticate") means another step is needed.
  */
-import {
-  type PublicKeyCredentialCreationOptionsJSON,
-  type PublicKeyCredentialRequestOptionsJSON,
-  startAuthentication,
-  startRegistration,
-} from "@simplewebauthn/browser";
-
 const BASE = "/_allauth/browser/v1";
 
 type Flow = { id: string; is_pending?: boolean };
@@ -31,6 +24,14 @@ function csrfToken(): string {
 }
 
 async function call(method: "GET" | "POST" | "DELETE", path: string, body?: unknown) {
+  // Writes need the CSRF cookie, which the page asks for when it loads. On a slow
+  // connection someone can press the button first; get the cookie before sending.
+  if (method !== "GET" && !csrfToken()) {
+    await fetch(`${BASE}/auth/session`, {
+      credentials: "same-origin",
+      headers: { Accept: "application/json" },
+    });
+  }
   const response = await fetch(`${BASE}${path}`, {
     method,
     credentials: "same-origin",
@@ -61,6 +62,8 @@ export const reauthenticate = (password: string) => call("POST", "/auth/reauthen
 export const resetPassword = (key: string, password: string) =>
   call("POST", "/auth/password/reset", { key, password });
 export const requestPasswordReset = (email: string) => call("POST", "/auth/password/request", { email });
+export const changePassword = (current_password: string, new_password: string) =>
+  call("POST", "/account/password/change", { current_password, new_password });
 
 export type SignupDetails = {
   email: string;
@@ -75,24 +78,8 @@ export const signup = (details: SignupDetails) => call("POST", "/auth/signup", d
 export const verifyEmail = (code: string) => call("POST", "/auth/email/verify", { key: code });
 export const resendEmailCode = () => call("POST", "/auth/email/verify/resend");
 
-export async function loginWithPasskey(): Promise<AuthResponse> {
-  const options = await call("GET", "/auth/webauthn/login");
-  const requestOptions = (options.data?.request_options as { publicKey: unknown })?.publicKey;
-  const credential = await startAuthentication({
-    optionsJSON: requestOptions as PublicKeyCredentialRequestOptionsJSON,
-  });
-  return call("POST", "/auth/webauthn/login", { credential });
-}
-
 export const getTotpSetup = () => call("GET", "/account/authenticators/totp");
 export const activateTotp = (code: string) => call("POST", "/account/authenticators/totp", { code });
 
-export async function addPasskey(name: string): Promise<AuthResponse> {
-  const options = await call("GET", "/account/authenticators/webauthn?passwordless");
-  if (options.status !== 200) return options;
-  const creationOptions = (options.data?.creation_options as { publicKey: unknown })?.publicKey;
-  const credential = await startRegistration({
-    optionsJSON: creationOptions as PublicKeyCredentialCreationOptionsJSON,
-  });
-  return call("POST", "/account/authenticators/webauthn", { name, credential });
-}
+/** Unused recovery codes. Needs a recent password confirmation (reauthenticate). */
+export const getRecoveryCodes = () => call("GET", "/account/authenticators/recovery-codes");

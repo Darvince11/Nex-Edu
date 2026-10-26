@@ -21,8 +21,8 @@ import {
 } from "@/components/ui";
 import { api, download, type Guardian, type Invoice, type ReportCard, type Student } from "@/lib/api";
 import { cedis, formatDate } from "@/lib/format";
-import { useSchool } from "@/lib/hooks";
-import { isLeader } from "@/lib/roles";
+import { useArms, useSchool } from "@/lib/hooks";
+import { PERM } from "@/lib/permissions";
 
 type Attendance = {
   summary: { present: number; absent: number; late: number; excused: number; days_open: number } | null;
@@ -31,12 +31,18 @@ type Attendance = {
 
 export default function StudentPage() {
   const { id } = useParams<{ id: string }>();
-  const { roles } = useSchool();
+  const { can } = useSchool();
   const [addingGuardian, setAddingGuardian] = useState(false);
   const student = useQuery({
     queryKey: ["student", id],
     queryFn: () => api.get<Student>(`/api/v1/students/${id}`),
   });
+  // Class teachers add guardians for pupils in their own class only.
+  const ownClassOnly = !can(PERM.STUDENTS_MANAGE) && can(PERM.STUDENTS_ADD_OWN_CLASS);
+  const formArms = useArms("form", ownClassOnly);
+  const canAddGuardian =
+    can(PERM.STUDENTS_MANAGE) ||
+    (ownClassOnly && Boolean(formArms.data?.some((a) => a.id === student.data?.arm)));
   const guardians = useQuery({
     queryKey: ["guardians", id],
     queryFn: () => api.get<Guardian[]>(`/api/v1/students/${id}/guardians`),
@@ -115,7 +121,7 @@ export default function StudentPage() {
         <Card
           title="Parents and guardians"
           actions={
-            isLeader(roles) && (
+            canAddGuardian && (
               <Button variant="secondary" onClick={() => setAddingGuardian(true)}>
                 Add
               </Button>

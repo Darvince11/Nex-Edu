@@ -12,7 +12,7 @@ stack was already built and tested. All Auth0 code was removed.
 | **School owner** | `/signup`: name, email, password, consent → 8-letter email code → school details → **Nex Edu staff approve** (`manage.py review_registration`) → school created → owner membership → MFA set-up on first visit |
 | **Staff, parents, students** | Invited by their school: the email links to `/account/password/reset/<key>` to set a password (proves inbox control) |
 | **Platform staff** | `manage.py add_platform_staff`, then "Forgot password" to set a password, then MFA |
-| **Everyone** | `/login`: email + password, or a passkey; staff then pass MFA (TOTP or recovery code) |
+| **Everyone** | `/login`: email + password; staff then enter a code from their authenticator app (or a recovery code) |
 | **Forgotten password** | `/forgot-password` → one-time link valid 3 days |
 
 Creating an account opens nothing. School access comes only from a membership, which only a school invitation
@@ -29,7 +29,7 @@ or an approved registration creates (`test_a_new_account_opens_no_school`).
 | Bots | Hidden honeypot field (our own; allauth's only covers its HTML forms) → refused, nothing created, **no email sent**, so it can't be used to spam a third party | `test_bots_filling_the_honeypot_create_nothing_and_send_nothing` |
 | Rate limits | Sign-up 5/hour/IP; sign-in 20/min/IP; failed sign-in 5 per 5 min per account; one new code per minute; registrations 10/hour/user | `test_signups_are_rate_limited_per_ip`, `test_submissions_are_rate_limited` |
 | Spam via names | Names with links, `<`, `>` or `@` are refused (names appear in our emails) | `test_invalid_signups_create_nothing` |
-| Second factor | Passkeys (WebAuthn) and TOTP with recovery codes; mandatory for every staff role and platform staff, enforced on every API call | `test_staff_without_mfa_are_blocked`, `test_platform_staff_need_mfa` |
+| Second factor | Authenticator app (TOTP) with recovery codes shown once at set-up; mandatory for every staff role and platform staff, enforced on every API call. | `test_staff_without_mfa_are_blocked`, `test_platform_staff_need_mfa` |
 | Sessions | Server-side sessions, `HttpOnly`, `SameSite=Lax`, `Secure` in production, rotated with the CSRF token at sign-in, 8-hour lifetime | settings |
 | CSRF and origin | CSRF token on every write; Django refuses untrusted `Origin` | `test_browser_sign_in_passes_csrf_origin_check`, `test_untrusted_origin_is_rejected` |
 | Page security | Nonce-based CSP, no third-party scripts, fonts or CAPTCHAs (nothing tracks people on the sign-in pages), HSTS, frame-ancestors none | `test_security_headers`; proxy.ts |

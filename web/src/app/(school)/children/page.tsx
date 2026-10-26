@@ -22,7 +22,7 @@ export default function ChildrenPage() {
             <Link
               key={c.id}
               href={`/students/${c.id}`}
-              className="rounded-xl border border-neutral-200 bg-white p-4 hover:border-brand dark:border-neutral-800 dark:bg-neutral-900"
+              className="rounded-card border border-neutral-200 bg-white p-4 hover:border-brand dark:border-neutral-800 dark:bg-neutral-900"
             >
               <div className="text-lg font-medium">
                 {c.first_name} {c.last_name}

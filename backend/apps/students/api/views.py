@@ -7,12 +7,14 @@ from django.db.models import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, serializers, status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.academics.models import ClassArm
+from apps.academics.selectors import is_form_teacher
 from apps.students import selectors, services
 from apps.students.models import Student, StudentGuardian
 from core.permissions import has_perm, load_membership
@@ -94,7 +96,9 @@ class StudentScopedMixin:
 
     def get_queryset(self):  # type: ignore[no-untyped-def]
         roles = load_membership(self.request)
-        queryset = selectors.visible_students(self.request.user, roles)
+        queryset = selectors.visible_students(
+            self.request.user, roles, getattr(self.request, "permissions", ())
+        )
         params = self.request.query_params
         if arm := params.get("arm"):
             queryset = queryset.filter(arm_id=arm)
@@ -109,11 +113,24 @@ class StudentScopedMixin:
         return queryset
 
 
+ADD_PUPILS = (Perm.STUDENTS_MANAGE, Perm.STUDENTS_ADD_OWN_CLASS)
+
+
+def check_own_class(request: Request, arm_id: Any) -> None:
+    """Class teachers (no students.manage) may only add pupils to their own class."""
+    if has_perm(request, Perm.STUDENTS_MANAGE):
+        return
+    if not arm_id or not is_form_teacher(request.user, arm_id):
+        raise PermissionDenied("Class teachers can add pupils only to their own class.")
+
+
 class StudentListCreateView(StudentScopedMixin, generics.ListCreateAPIView[Student]):
     serializer_class = StudentSerializer
-    required_permissions: ClassVar = {"GET": Perm.STUDENTS_VIEW, "POST": Perm.STUDENTS_MANAGE}
+    required_permissions: ClassVar = {"GET": Perm.STUDENTS_VIEW, "POST": ADD_PUPILS}
 
     def perform_create(self, serializer: StudentSerializer) -> None:  # type: ignore[override]
+        arm = serializer.validated_data.get("arm")
+        check_own_class(self.request, arm.pk if arm else None)
         serializer.instance = services.create_student(
             request=self.request, data=dict(serializer.validated_data)
         )
@@ -140,7 +157,7 @@ class StudentDetailView(StudentScopedMixin, generics.RetrieveUpdateAPIView[Stude
 
 class StudentGuardiansView(StudentScopedMixin, generics.GenericAPIView[Student]):
     serializer_class = GuardianSerializer
-    required_permissions: ClassVar = {"GET": Perm.STUDENTS_VIEW, "POST": Perm.STUDENTS_MANAGE}
+    required_permissions: ClassVar = {"GET": Perm.STUDENTS_VIEW, "POST": ADD_PUPILS}
 
     def get(self, request: Request, pk: str) -> Response:
         student = generics.get_object_or_404(self.get_queryset(), pk=pk)
@@ -148,6 +165,7 @@ class StudentGuardiansView(StudentScopedMixin, generics.GenericAPIView[Student])
 
     def post(self, request: Request, pk: str) -> Response:
         student = generics.get_object_or_404(self.get_queryset(), pk=pk)
+        check_own_class(request, student.arm_id)
         data = GuardianSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         guardian = services.add_guardian(
@@ -179,3 +197,84 @@ class StudentImportView(APIView):
         )
         code = status.HTTP_201_CREATED if report.created else (400 if report.errors else 200)
         return Response(asdict(report), status=code)
+
+
+class GuardianInviteSerializer(serializers.Serializer):  # type: ignore[type-arg]
+    key = serializers.CharField(max_length=80)
+
+
+class GuardianDirectoryView(APIView):
+    """Every parent and guardian of the pupils the viewer can see, each listed once
+    (?q=, ?arm=). Staff only. POST {key} invites one to Nex Edu as a parent, linked
+    to all their children."""
+
+    required_permissions: ClassVar = {
+        "GET": Perm.STUDENTS_VIEW,
+        "POST": (Perm.MEMBERS_MANAGE, Perm.STUDENTS_MANAGE, Perm.ADMISSIONS_MANAGE),
+    }
+
+    def _students(self, request: Request) -> Any:
+        from core.rbac import STAFF_ROLES
+
+        roles = load_membership(request)
+        if not roles & STAFF_ROLES:
+            raise PermissionDenied("The guardian directory is for school staff.")
+        return selectors.visible_students(request.user, roles, getattr(request, "permissions", ()))
+
+    @extend_schema(responses=OpenApiTypes.OBJECT)
+    def get(self, request: Request) -> Response:
+        from apps.students.guardians import directory
+
+        params = request.query_params
+        return Response(
+            directory(
+                self._students(request),
+                q=params.get("q", "").strip(),
+                arm=params.get("arm") or None,
+            )
+        )
+
+    @extend_schema(request=GuardianInviteSerializer, responses=OpenApiTypes.OBJECT)
+    def post(self, request: Request) -> Response:
+        from apps.students.guardians import invite
+
+        data = GuardianInviteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        linked = invite(
+            request=request,
+            granter_roles=load_membership(request),
+            students=self._students(request),
+            key=data.validated_data["key"],
+        )
+        return Response({"linked_children": linked}, status=status.HTTP_201_CREATED)
+
+
+class PromotionSerializer(serializers.Serializer):  # type: ignore[type-arg]
+    overrides = serializers.DictField(
+        child=serializers.CharField(max_length=10), required=False, default=dict
+    )
+    confirm = serializers.BooleanField(required=False, default=False)
+
+
+class PromotionView(APIView):
+    """End of year. GET: each class, where it goes and its pupils. POST: move them
+    (per-pupil overrides: promote, repeat, graduate or leave)."""
+
+    required_permissions: ClassVar = {"GET": Perm.STUDENTS_MANAGE, "POST": Perm.STUDENTS_MANAGE}
+
+    @extend_schema(responses=OpenApiTypes.OBJECT)
+    def get(self, request: Request) -> Response:
+        from apps.students.promotion import plan
+
+        return Response(plan())
+
+    @extend_schema(request=PromotionSerializer, responses=OpenApiTypes.OBJECT)
+    def post(self, request: Request) -> Response:
+        from apps.students.promotion import apply
+
+        data = PromotionSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        run = apply(request=request, **data.validated_data)
+        return Response(
+            {"summary": run.summary, "moves": run.moves}, status=status.HTTP_201_CREATED
+        )

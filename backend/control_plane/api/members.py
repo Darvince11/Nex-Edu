@@ -10,6 +10,7 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, serializers, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -17,7 +18,7 @@ from control_plane.members import invite_member, send_invitation, set_membership
 from control_plane.models import Membership, Role
 from control_plane.tenancy import tenant_atomic
 from core.audit.services import record_event
-from core.rbac import Perm
+from core.rbac import Perm, can_grant
 from core.views import TenantViewSet
 
 
@@ -59,20 +60,34 @@ class MemberSerializer(serializers.ModelSerializer[Membership]):
 class InviteSerializer(serializers.Serializer):  # type: ignore[type-arg]
     email = serializers.EmailField()
     role = serializers.ChoiceField(choices=Role.choices)
-    first_name = serializers.CharField(max_length=150, required=False, default="")
-    last_name = serializers.CharField(max_length=150, required=False, default="")
+    # Names are optional: the person can add them on their profile after signing up.
+    first_name = serializers.CharField(max_length=150, required=False, default="", allow_blank=True)
+    last_name = serializers.CharField(max_length=150, required=False, default="", allow_blank=True)
     phone = serializers.CharField(max_length=20, required=False, default="", allow_blank=True)
+
+
+GRANTERS = (
+    Perm.MEMBERS_MANAGE,
+    Perm.MEMBERS_MANAGE_STAFF,
+    Perm.STUDENTS_MANAGE,
+    Perm.ADMISSIONS_MANAGE,
+)
 
 
 class MemberViewSet(mixins.ListModelMixin, TenantViewSet):
     serializer_class = MemberSerializer
     queryset = Membership.objects.none()  # for schema generation; real scope in get_queryset
+    # Head teacher and administrator see who has access. The proprietor
+    # (members.manage) gives or removes any staff role; the head teacher
+    # (members.manage_staff) adds and blocks teaching and support staff; whoever
+    # manages pupils or admissions may invite parents and pupils. can_grant
+    # decides per role.
     required_permissions: ClassVar = {
-        "list": Perm.MEMBERS_MANAGE,
-        "create": Perm.MEMBERS_MANAGE,
-        "deactivate": Perm.MEMBERS_MANAGE,
-        "activate": Perm.MEMBERS_MANAGE,
-        "resend_invite": Perm.MEMBERS_MANAGE,
+        "list": (Perm.MEMBERS_MANAGE, Perm.MEMBERS_VIEW),
+        "create": GRANTERS,
+        "deactivate": GRANTERS,
+        "activate": GRANTERS,
+        "resend_invite": GRANTERS,
     }
 
     def get_queryset(self) -> QuerySet[Membership]:
@@ -131,6 +146,9 @@ class MemberViewSet(mixins.ListModelMixin, TenantViewSet):
     @action(detail=True, methods=["post"])
     def resend_invite(self, request: Request, pk: str | None = None) -> Response:
         membership = get_object_or_404(self.get_queryset(), pk=pk)
+        _, roles, _ = self.actor()
+        if not can_grant(roles, membership.role):
+            raise PermissionDenied("You can't resend an invitation for this role.")
         if membership.user.has_usable_password():
             return Response({"detail": "This person has already set a password."}, status=400)
         send_invitation(request, membership.user, request.tenant, membership.role)  # type: ignore[attr-defined]

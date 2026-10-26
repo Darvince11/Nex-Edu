@@ -11,6 +11,9 @@ backend/openapi.yaml
 # Node
 node_modules/
 .next/
+.next-e2e/
+web/test-results/
+web/playwright-report/
 web/next-env.d.ts
 *.tsbuildinfo
 

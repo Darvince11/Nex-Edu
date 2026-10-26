@@ -1,8 +1,9 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { ApiError } from "@/lib/api";
+import { listenForErrors } from "@/lib/error-reporting";
 
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(
@@ -17,5 +18,6 @@ export function Providers({ children }: { children: ReactNode }) {
         },
       }),
   );
+  useEffect(() => listenForErrors(), []);
   return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

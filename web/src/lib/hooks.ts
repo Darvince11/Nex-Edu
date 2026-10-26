@@ -1,8 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { type Arm, api, getSelectedSchool, type Me, type Subject, type Term } from "./api";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+  type Arm,
+  api,
+  fetchImage,
+  getSelectedSchool,
+  type Me,
+  type MySchool,
+  type Subject,
+  selectSchool,
+  type Term,
+} from "./api";
+import { canAny, type Permission } from "./permissions";
+import { pickSchool } from "./school";
 
 export function useMe() {
   return useQuery({
@@ -12,18 +24,56 @@ export function useMe() {
   });
 }
 
-/** The selected school's slug (read after mount, since it lives in a cookie). */
-export function useSchoolSlug(): string | undefined | null {
-  const [slug, setSlug] = useState<string | undefined | null>(null); // null = not read yet
-  useEffect(() => setSlug(getSelectedSchool()), []);
-  return slug;
+export type SchoolSession = {
+  me: ReturnType<typeof useMe>;
+  slug: string | undefined;
+  school: MySchool | undefined;
+  roles: string[];
+  permissions: string[];
+  can: (...wanted: Permission[]) => boolean;
+  /** Is this module switched on for the school? Core modules always are. */
+  hasModule: (code: string) => boolean;
+};
+
+/**
+ * Works out the person's school (see pickSchool) and remembers it for API calls.
+ * Only the school layout calls this; pages read the result with useSchool().
+ * `school` stays undefined until the cookie is set, so no request goes out
+ * without the right school.
+ */
+export function useResolveSchool(): SchoolSession & { resolving: boolean } {
+  const me = useMe();
+  const [saved, setSaved] = useState<string | undefined | null>(null); // null = cookie not read yet
+  useEffect(() => setSaved(getSelectedSchool()), []);
+  const resolved = me.data && saved !== null ? pickSchool(me.data, saved) : undefined;
+  useEffect(() => {
+    if (resolved && resolved !== saved) {
+      selectSchool(resolved);
+      setSaved(resolved);
+    }
+  }, [resolved, saved]);
+  const school =
+    resolved && resolved === saved ? me.data?.schools.find((s) => s.slug === resolved) : undefined;
+  const permissions = school?.permissions ?? [];
+  return {
+    me,
+    slug: school?.slug,
+    school,
+    roles: school?.roles ?? [],
+    permissions,
+    can: (...wanted) => canAny(permissions, ...wanted),
+    hasModule: (code) => Boolean(school?.modules.includes(code)),
+    resolving: me.isPending || saved === null || (Boolean(resolved) && resolved !== saved),
+  };
 }
 
-export function useSchool() {
-  const me = useMe();
-  const slug = useSchoolSlug();
-  const school = me.data?.schools.find((s) => s.slug === slug);
-  return { me, slug, school, roles: school?.roles ?? [] };
+export const SchoolContext = createContext<SchoolSession | null>(null);
+
+/** The signed-in person's school, roles and permissions (inside the school layout). */
+export function useSchool(): SchoolSession {
+  const session = useContext(SchoolContext);
+  if (!session) throw new Error("useSchool() is only available inside the school layout.");
+  return session;
 }
 
 export function useTerms() {
@@ -37,10 +87,13 @@ export function useCurrentTerm() {
   });
 }
 
-export function useArms(mine = false) {
+/** Classes: all of them, the ones I teach (`true`), or the ones I'm class teacher of ("form"). */
+export function useArms(mine: boolean | "form" = false, enabled = true) {
+  const query = mine === "form" ? "?mine=form" : mine ? "?mine=1" : "";
   return useQuery({
     queryKey: ["arms", mine],
-    queryFn: () => api.get<Arm[]>(`/api/v1/academics/arms${mine ? "?mine=1" : ""}`),
+    queryFn: () => api.get<Arm[]>(`/api/v1/academics/arms${query}`),
+    enabled,
   });
 }
 
@@ -65,4 +118,32 @@ export function useOnline(): boolean {
     };
   }, []);
   return online;
+}
+
+export const SCHOOL_LOGO = "/api/v1/school/logo";
+export const PUBLIC_SCHOOL_LOGO = "/api/v1/public/school-logo";
+
+/**
+ * A school's logo as a local object URL (allowed by the CSP's img-src blob:),
+ * or null when the school hasn't uploaded one. Freed when it changes.
+ */
+export function useSchoolLogo(path: string, school: string | undefined, enabled = Boolean(school)) {
+  const logo = useQuery({
+    queryKey: ["school-logo", path, school ?? ""],
+    queryFn: () => fetchImage(path, school),
+    enabled,
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!logo.data) {
+      setUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(logo.data);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [logo.data]);
+  return url;
 }

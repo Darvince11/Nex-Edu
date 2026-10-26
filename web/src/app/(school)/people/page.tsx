@@ -19,10 +19,22 @@ import {
 } from "@/components/ui";
 import { api, type Member } from "@/lib/api";
 import { formatDate } from "@/lib/format";
+import { useSchool } from "@/lib/hooks";
+import { PERM } from "@/lib/permissions";
 import { ROLE_LABELS, type Role } from "@/lib/roles";
+
+const FAMILY_ROLES: Role[] = ["parent", "student"];
 
 export default function PeoplePage() {
   const client = useQueryClient();
+  const { me, school, can } = useSchool();
+  // The server says which roles this person may give or block: everything for the
+  // proprietor; teaching and support staff (plus families) for the head teacher;
+  // parents and pupils for the administrator.
+  const grantable = (school?.grantable_roles ?? []) as Role[];
+  const staffRoles = grantable.filter((r) => !FAMILY_ROLES.includes(r));
+  const allStaff = can(PERM.MEMBERS_MANAGE);
+  const mayChange = (m: Member) => grantable.includes(m.role as Role) && m.user !== me.data?.id;
   const [role, setRole] = useState("");
   const [inviting, setInviting] = useState(false);
   const members = useQuery({
@@ -38,9 +50,21 @@ export default function PeoplePage() {
   return (
     <>
       <PageHeader
-        title="People"
-        description="Staff, parents and students with a Nex Edu login at this school."
-        actions={<Button onClick={() => setInviting(true)}>Invite someone</Button>}
+        title="Staff and access"
+        description={
+          allStaff
+            ? "Staff, parents and students with a Nex Edu login at this school. You decide who has which role."
+            : staffRoles.length
+              ? "Everyone with a Nex Edu login at this school. You add and block teachers and support staff; head teachers, administrators and bursars are added by the proprietor."
+              : "Everyone with a Nex Edu login at this school. Only the proprietor can give or remove staff access."
+        }
+        actions={
+          grantable.length > 0 && (
+            <Button onClick={() => setInviting(true)}>
+              {staffRoles.length ? "Invite someone" : "Invite a parent"}
+            </Button>
+          )
+        }
       />
       <div className="mb-4 w-56">
         <Select value={role} onChange={(e) => setRole(e.target.value)} aria-label="Role">
@@ -63,7 +87,14 @@ export default function PeoplePage() {
           {members.data.map((m) => (
             <tr key={m.id} className={m.is_active ? "" : "opacity-50"}>
               <Td className="font-medium">{`${m.first_name} ${m.last_name}`.trim() || "—"}</Td>
-              <Td>{m.role_label}</Td>
+              <Td>
+                {m.role_label}
+                {!m.is_active && (
+                  <span className="ml-2">
+                    <Badge tone="red">Blocked</Badge>
+                  </span>
+                )}
+              </Td>
               <Td>
                 {m.email}
                 <div className="text-xs text-neutral-500">{m.phone}</div>
@@ -79,17 +110,20 @@ export default function PeoplePage() {
               </Td>
               <Td>{formatDate(m.last_login)}</Td>
               <Td className="whitespace-nowrap">
-                {!m.has_password && m.is_active && (
+                {mayChange(m) && !m.has_password && m.is_active && (
                   <Button variant="ghost" onClick={() => act.mutate({ id: m.id, action: "resend_invite" })}>
                     Resend invite
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  onClick={() => act.mutate({ id: m.id, action: m.is_active ? "deactivate" : "activate" })}
-                >
-                  {m.is_active ? "Remove access" : "Restore access"}
-                </Button>
+                {mayChange(m) && (
+                  <Button
+                    variant="ghost"
+                    aria-label={`${m.is_active ? "Block" : "Unblock"} ${`${m.first_name} ${m.last_name}`.trim() || m.email} (${m.role_label})`}
+                    onClick={() => act.mutate({ id: m.id, action: m.is_active ? "deactivate" : "activate" })}
+                  >
+                    {m.is_active ? "Block" : "Unblock"}
+                  </Button>
+                )}
               </Td>
             </tr>
           ))}
@@ -98,13 +132,13 @@ export default function PeoplePage() {
         <Empty>Nobody yet.</Empty>
       )}
       <Modal open={inviting} onClose={() => setInviting(false)} title="Invite someone">
-        <Invite onDone={() => setInviting(false)} />
+        <Invite roles={grantable} onDone={() => setInviting(false)} />
       </Modal>
     </>
   );
 }
 
-function Invite({ onDone }: { onDone: () => void }) {
+function Invite({ roles, onDone }: { roles: Role[]; onDone: () => void }) {
   const client = useQueryClient();
   const invite = useMutation({
     mutationFn: (body: Record<string, unknown>) => api.post("/api/v1/members", body),
@@ -132,10 +166,10 @@ function Invite({ onDone }: { onDone: () => void }) {
         <Input name="phone" inputMode="tel" placeholder="024 412 3456" />
       </Field>
       <Field label="Role">
-        <Select name="role" defaultValue="teacher">
-          {(Object.entries(ROLE_LABELS) as [Role, string][]).map(([value, label]) => (
+        <Select name="role" defaultValue={roles.includes("teacher") ? "teacher" : roles[0]}>
+          {roles.map((value) => (
             <option key={value} value={value}>
-              {label}
+              {ROLE_LABELS[value]}
             </option>
           ))}
         </Select>

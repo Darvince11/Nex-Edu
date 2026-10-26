@@ -71,6 +71,27 @@ TENANT_APPS = [
     "apps.assessments",
     "apps.finance",
     "apps.communication",
+    "apps.library",
+    "apps.clubs",
+    "apps.meetings",
+    "apps.discipline",
+    "apps.clinic",
+    "apps.transport",
+    "apps.canteen",
+    "apps.inventory",
+    "apps.facilities",
+    "apps.visitors",
+    "apps.lms",
+    "apps.hostel",
+    "apps.accounting",
+    "apps.payroll",
+    "apps.procurement",
+    "apps.exams",
+    "apps.support",
+    "apps.alumni",
+    "apps.website",
+    "apps.compliance",
+    "apps.assist",
 ]
 
 INSTALLED_APPS = [*CONTROL_PLANE_APPS, "core", *TENANT_APPS]
@@ -88,6 +109,27 @@ TENANT_APP_LABELS = frozenset(
         "assessments",
         "finance",
         "communication",
+        "library",
+        "clubs",
+        "meetings",
+        "discipline",
+        "clinic",
+        "transport",
+        "canteen",
+        "inventory",
+        "facilities",
+        "visitors",
+        "lms",
+        "hostel",
+        "accounting",
+        "payroll",
+        "procurement",
+        "exams",
+        "support",
+        "alumni",
+        "website",
+        "compliance",
+        "assist",
     }
 )
 
@@ -106,6 +148,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "control_plane.middleware.TenantMiddleware",
+    "control_plane.problems.SlowRequestMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -168,7 +211,7 @@ FIELD_ENCRYPTION_LOCAL_MASTER_KEY = env(
 FIELD_ENCRYPTION_KMS_KEY_ID = env("FIELD_ENCRYPTION_KMS_KEY_ID", "")
 
 # ---------------------------------------------------------------------------
-# Authentication (django-allauth headless: passkeys, TOTP, recovery codes)
+# Authentication (django-allauth headless: password, TOTP, recovery codes)
 # ---------------------------------------------------------------------------
 AUTH_USER_MODEL = "control_plane.User"
 AUTHENTICATION_BACKENDS = [
@@ -226,8 +269,12 @@ ACCOUNT_EMAIL_SUBJECT_PREFIX = ""
 # Bumped whenever the terms or privacy notice change; stored with each user's consent.
 TERMS_VERSION = "2026-10-23"
 
-MFA_SUPPORTED_TYPES = ["webauthn", "totp", "recovery_codes"]
-MFA_PASSKEY_LOGIN_ENABLED = True
+# Second factor: authenticator-app codes (TOTP), with recovery codes as backup.
+MFA_SUPPORTED_TYPES = ["totp", "recovery_codes"]
+# Accept the code from one 30-second step either side (RFC 6238 section 5.2), so a code
+# typed as it rolls over, or a phone clock a few seconds off, still works. Three valid
+# codes at a time stays negligible against the sign-in rate limits.
+MFA_TOTP_TOLERANCE = 1
 MFA_TOTP_ISSUER = "Nex Edu"
 MFA_TRUST_ENABLED = False
 
@@ -242,6 +289,9 @@ HEADLESS_JWT_REFRESH_TOKEN_EXPIRES_IN = 60 * 60 * 24 * 30
 HEADLESS_JWT_ROTATE_REFRESH_TOKEN = True
 HEADLESS_JWT_STATEFUL_VALIDATION_ENABLED = True
 FRONTEND_URL = env("FRONTEND_URL", "http://localhost:3000")
+# Shown on the console's System page. Set by the deploy pipeline (version tag, git commit).
+APP_VERSION = env("APP_VERSION", "0.1.0")
+APP_RELEASE = env("APP_RELEASE", "")
 HEADLESS_FRONTEND_URLS = {
     "account_confirm_email": f"{FRONTEND_URL}/account/verify-email/{{key}}",
     "account_reset_password_from_key": f"{FRONTEND_URL}/account/password/reset/{{key}}",
@@ -249,10 +299,14 @@ HEADLESS_FRONTEND_URLS = {
     "account_reset_password": f"{FRONTEND_URL}/forgot-password",
 }
 
-# Roles that must have MFA enrolled before they can use any tenant endpoint.
-MFA_REQUIRED_ROLES = frozenset(
-    {"owner", "principal", "admin", "bursar", "teacher", "form_teacher", "librarian", "warden"}
-)
+# School roles that must enrol an authenticator app before using any school endpoint.
+# None by default: the app is optional for school staff (owner's decision, 24 Oct 2026)
+# and anyone can turn it on from their profile. A deployment can make it mandatory
+# again by listing roles, e.g. MFA_REQUIRED_ROLES=owner,principal,admin,bursar.
+MFA_REQUIRED_ROLES = frozenset(env_list("MFA_REQUIRED_ROLES"))
+# Nex Edu platform staff: also optional (owner's decision, 24 Oct 2026). The console
+# reminds them until they add one. Set PLATFORM_MFA_REQUIRED=true to make it a gate.
+PLATFORM_MFA_REQUIRED = env_bool("PLATFORM_MFA_REQUIRED", False)
 
 # ---------------------------------------------------------------------------
 # Sessions, cookies, CSRF
@@ -313,6 +367,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
         "core.permissions.IsTenantMember",
+        "core.permissions.ModuleEnabled",
         "core.permissions.MFAEnrolledForStaff",
         "core.permissions.HasRequiredPermission",
     ],
@@ -328,6 +383,8 @@ REST_FRAMEWORK = {
         "public": "10/min",
         # School registration requests and slug checks, per user.
         "registration": "10/hour",
+        # Developer API, per key.
+        "developer": "600/hour",
     },
     "DEFAULT_PAGINATION_CLASS": "core.pagination.DefaultCursorPagination",
     "PAGE_SIZE": 50,
@@ -342,6 +399,14 @@ SPECTACULAR_SETTINGS = {
     "OAS_VERSION": "3.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
+    # Several models have a "status" field with different choices; name them explicitly.
+    "ENUM_NAME_OVERRIDES": {
+        "RegistrationStatusEnum": "control_plane.models.SchoolRegistration.Status",
+        "ProblemStatusEnum": "control_plane.models.Problem.Status",
+        "PublishStatusEnum": "control_plane.models.PlatformAnnouncement.Status",
+        "BookCopyConditionEnum": "apps.library.models.Copy.Condition",
+        "AssetConditionEnum": "apps.inventory.models.Asset.Condition",
+    },
 }
 
 # ---------------------------------------------------------------------------
@@ -354,6 +419,8 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_ACKS_LATE = True
+# Local dev only (see dev.py): run eager tasks on a thread instead of in the request.
+TASKS_IN_THREADS = False
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_TASK_DEFAULT_QUEUE = "default"
 # Separate queues so a report-card PDF storm can't delay payment processing.
@@ -371,7 +438,44 @@ CELERY_BEAT_SCHEDULE = {
         "task": "integrations.payments.reconcile_all",
         "schedule": timedelta(minutes=15),
     },
+    "collect-school-usage": {
+        "task": "control_plane.collect_usage",
+        "schedule": timedelta(hours=1),
+    },
+    "health-checks": {
+        "task": "control_plane.health_checks",
+        "schedule": timedelta(minutes=5),
+    },
+    "vulnerability-scan": {
+        "task": "control_plane.vulnerability_scan",
+        "schedule": timedelta(days=1),
+    },
+    "compliance-reminders": {
+        "task": "compliance.remind_all",
+        "schedule": timedelta(days=1),
+    },
+    "subscription-billing": {
+        "task": "control_plane.billing_daily",
+        "schedule": timedelta(days=1),
+    },
+    "purge-closed-schools": {
+        "task": "control_plane.purge_closed_schools",
+        "schedule": timedelta(days=1),
+    },
+    "analytics-export": {
+        "task": "control_plane.analytics_export",
+        "schedule": timedelta(days=1),
+    },
 }
+# Nightly anonymised figures for the analytics warehouse (a separate S3 bucket in
+# production, read by Athena).
+ANALYTICS_PREFIX = env("ANALYTICS_PREFIX", "analytics/")
+
+# AI drafting help (module ai_assist): Claude through the Anthropic API. Off unless a
+# key is set; every school also has a daily cap.
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", "")
+AI_DRAFTS_PER_DAY = int(env("AI_DRAFTS_PER_DAY", "300"))
+AI_TIMEOUT_SECONDS = float(env("AI_TIMEOUT_SECONDS", "60"))
 AUDIT_EXPORT_BUCKET = env("AUDIT_EXPORT_BUCKET", "")
 
 # ---------------------------------------------------------------------------
@@ -380,6 +484,11 @@ AUDIT_EXPORT_BUCKET = env("AUDIT_EXPORT_BUCKET", "")
 PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY", "")
 FLUTTERWAVE_SECRET_KEY = env("FLUTTERWAVE_SECRET_KEY", "")
 FLUTTERWAVE_WEBHOOK_HASH = env("FLUTTERWAVE_WEBHOOK_HASH", "")
+# Browser push (Web Push with VAPID). Off unless both keys are set; make them with
+# manage.py generate_vapid_keys and keep the private key in the secrets store.
+WEB_PUSH_VAPID_PUBLIC_KEY = env("WEB_PUSH_VAPID_PUBLIC_KEY", "")
+WEB_PUSH_VAPID_PRIVATE_KEY = env("WEB_PUSH_VAPID_PRIVATE_KEY", "")
+WEB_PUSH_CONTACT = env("WEB_PUSH_CONTACT", "mailto:support@nexedu.com.gh")
 SMS_PROVIDER = env("SMS_PROVIDER", "console")  # "arkesel" in production
 ARKESEL_API_KEY = env("ARKESEL_API_KEY", "")
 ARKESEL_BASE_URL = env("ARKESEL_BASE_URL", "https://sms.arkesel.com")
@@ -424,7 +533,9 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "json",
             "filters": ["request_context"],
-        }
+        },
+        # ERROR records (500s, failed jobs) become entries on the console's System page.
+        "problems": {"()": "control_plane.problems.ProblemLogHandler"},
     },
-    "root": {"handlers": ["console"], "level": env("LOG_LEVEL", "INFO")},
+    "root": {"handlers": ["console", "problems"], "level": env("LOG_LEVEL", "INFO")},
 }

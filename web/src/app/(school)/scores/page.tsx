@@ -16,7 +16,7 @@ import {
 } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useArms, useCurrentTerm, useSchool, useSubjects } from "@/lib/hooks";
-import { isLeader } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 
 type Component = { id: number; name: string; code: string; max_score: string };
 type Sheet = {
@@ -31,10 +31,10 @@ type Sheet = {
 };
 
 export default function ScoresPage() {
-  const { roles } = useSchool();
+  const { can } = useSchool();
   const client = useQueryClient();
   const term = useCurrentTerm();
-  const arms = useArms(!isLeader(roles));
+  const arms = useArms(!can(PERM.ASSESSMENTS_MANAGE));
   const [arm, setArm] = useState("");
   const subjects = useSubjects(arm || undefined);
   const [subject, setSubject] = useState("");
