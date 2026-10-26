@@ -158,18 +158,33 @@ class PublicAdmissionView(PublicEndpointMixin, APIView):
     honeypot field to drop bot submissions silently.
     """
 
-    @extend_schema(responses=OpenApiTypes.OBJECT)
-    def get(self, request: Request) -> Response:
+    def _closed(self, request: Request) -> Response | None:
+        from control_plane.modules import is_active
+
         if getattr(request, "tenant", None) is None:
             return Response({"detail": "School not found."}, status=404)
+        if not is_active(request.tenant, "admissions"):  # type: ignore[attr-defined]
+            return Response(
+                {
+                    "detail": "This school isn't taking applications online.",
+                    "code": "module_disabled",
+                },
+                status=404,
+            )
+        return None
+
+    @extend_schema(responses=OpenApiTypes.OBJECT)
+    def get(self, request: Request) -> Response:
+        if closed := self._closed(request):
+            return closed
         profile = SchoolProfile.load()
         levels = ClassLevel.objects.filter(is_active=True).values("id", "name")
         return Response({"school": profile.name, "levels": list(levels)})
 
     @extend_schema(request=PublicApplicationSerializer, responses=OpenApiTypes.OBJECT)
     def post(self, request: Request) -> Response:
-        if getattr(request, "tenant", None) is None:
-            return Response({"detail": "School not found."}, status=404)
+        if closed := self._closed(request):
+            return closed
         data = PublicApplicationSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         fields = dict(data.validated_data)

@@ -31,13 +31,16 @@ from .. import services
 from ..models import AssessmentComponent, GradeBand, ReportCard
 
 MANAGE = Perm.ASSESSMENTS_MANAGE
+# Grading set-up (components, grade bands) is separate from entering scores: the
+# head teacher sets up grading but doesn't enter scores.
+CONFIGURE = Perm.ASSESSMENTS_CONFIGURE
 CONFIG_PERMS: dict[str, Any] = {
     "list": Perm.ASSESSMENTS_VIEW,
     "retrieve": Perm.ASSESSMENTS_VIEW,
-    "create": MANAGE,
-    "update": MANAGE,
-    "partial_update": MANAGE,
-    "destroy": MANAGE,
+    "create": CONFIGURE,
+    "update": CONFIGURE,
+    "partial_update": CONFIGURE,
+    "destroy": CONFIGURE,
 }
 
 
@@ -135,8 +138,19 @@ class ArmTermSerializer(serializers.Serializer):  # type: ignore[type-arg]
     term = serializers.IntegerField()
 
 
+PREPARE_RESULTS = (Perm.ASSESSMENTS_PUBLISH, Perm.ASSESSMENTS_PUBLISH_OWN_CLASS)
+
+
+def check_results_access(request: Request, arm: ClassArm) -> None:
+    """Class teachers (no assessments.publish) prepare report cards for their own class only."""
+    if Perm.ASSESSMENTS_PUBLISH in _perms(request):
+        return
+    if not is_form_teacher(request.user, arm.pk):
+        raise PermissionDenied("You can only prepare report cards for your own class.")
+
+
 class ComputeResultsView(APIView):
-    required_permissions: ClassVar = {"POST": Perm.ASSESSMENTS_PUBLISH}
+    required_permissions: ClassVar = {"POST": PREPARE_RESULTS}
 
     @extend_schema(request=ArmTermSerializer, responses=OpenApiTypes.OBJECT)
     def post(self, request: Request) -> Response:
@@ -146,11 +160,12 @@ class ComputeResultsView(APIView):
             ClassArm.objects.select_related("level"), pk=data.validated_data["arm"]
         )
         term = get_object_or_404(Term, pk=data.validated_data["term"])
+        check_results_access(request, arm)
         return Response(services.compute_results(request=request, arm=arm, term=term))
 
 
 class PublishResultsView(APIView):
-    required_permissions: ClassVar = {"POST": Perm.ASSESSMENTS_PUBLISH}
+    required_permissions: ClassVar = {"POST": PREPARE_RESULTS}
 
     @extend_schema(request=ArmTermSerializer, responses=OpenApiTypes.OBJECT)
     def post(self, request: Request) -> Response:
@@ -158,6 +173,7 @@ class PublishResultsView(APIView):
         data.is_valid(raise_exception=True)
         arm = get_object_or_404(ClassArm, pk=data.validated_data["arm"])
         term = get_object_or_404(Term, pk=data.validated_data["term"])
+        check_results_access(request, arm)
         return Response(
             {"published": services.publish_results(request=request, arm=arm, term=term)}
         )
@@ -258,8 +274,8 @@ class ReportCardViewSet(
     }
 
     def get_queryset(self) -> QuerySet[ReportCard]:
-        user, roles, _ = self.actor()
-        students = visible_students(user, roles)
+        user, roles, perms = self.actor()
+        students = visible_students(user, roles, perms)
         qs = ReportCard.objects.filter(student__in=students).select_related(
             "student", "term__session", "arm__level"
         )

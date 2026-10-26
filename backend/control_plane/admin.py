@@ -1,7 +1,15 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import Cell, Membership, Tenant, TenantMigrationRun, User
+from .models import (
+    Cell,
+    Membership,
+    PlatformAuditEvent,
+    PlatformStaff,
+    Tenant,
+    TenantMigrationRun,
+    User,
+)
 
 
 @admin.register(User)
@@ -44,3 +52,28 @@ class MembershipAdmin(admin.ModelAdmin):
 class TenantMigrationRunAdmin(admin.ModelAdmin):
     list_display = ("tenant", "started_at", "succeeded", "schema_version")
     list_filter = ("succeeded",)
+
+
+class ReadOnlyAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request, obj=None):  # type: ignore[no-untyped-def]
+        return False
+
+    def has_change_permission(self, request, obj=None):  # type: ignore[no-untyped-def]
+        return False
+
+    def has_delete_permission(self, request, obj=None):  # type: ignore[no-untyped-def]
+        return False
+
+
+@admin.register(PlatformStaff)
+class PlatformStaffAdmin(ReadOnlyAdmin):
+    """Read-only: platform roles are granted with ``manage.py add_platform_staff``."""
+
+    list_display = ("user", "role", "is_active", "created_at")
+    list_filter = ("role", "is_active")
+
+
+@admin.register(PlatformAuditEvent)
+class PlatformAuditEventAdmin(ReadOnlyAdmin):
+    list_display = ("seq", "occurred_at", "actor_email", "action", "tenant_id", "target_id")
+    list_filter = ("action",)

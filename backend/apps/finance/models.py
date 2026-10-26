@@ -200,3 +200,38 @@ class JournalLine(models.Model):
         if not self._state.adding:
             raise AppendOnlyError("Journal lines are immutable.")
         super().save(*args, **kwargs)
+
+
+class Scholarship(models.Model):
+    """A standing reduction on a pupil's fees, applied whenever invoices are made:
+    a percentage or a fixed amount, of the whole bill or of one fee item."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="scholarships")
+    name = models.CharField(max_length=80, help_text='e.g. "Staff child", "Sibling discount"')
+    percent = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    amount_pesewas = models.PositiveBigIntegerField(null=True, blank=True)
+    item = models.ForeignKey(
+        FeeItem,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text="Only this fee item; empty means the whole bill",
+    )
+    is_active = models.BooleanField(default=True)
+    note = models.CharField(max_length=200, blank=True)
+    created_by = models.UUIDField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering: ClassVar = ["student__last_name", "name"]
+
+    def deduction(self, lines: list[tuple[Any, int]]) -> int:
+        """Pesewas off, given the invoice lines as (fee item id, amount)."""
+        base = sum(amount for item_id, amount in lines if self.item_id in (None, item_id))
+        if base <= 0:
+            return 0
+        if self.percent is not None:
+            return min(base, round(base * float(self.percent) / 100))
+        return min(base, self.amount_pesewas or 0)

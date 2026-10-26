@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, serializers
 from rest_framework.pagination import CursorPagination
@@ -45,10 +46,20 @@ class AuditEventListView(generics.ListAPIView[AuditEvent]):
     required_permissions: ClassVar = {"GET": Perm.AUDIT_VIEW}
 
     def get_queryset(self):  # type: ignore[no-untyped-def]
+        """?action= (exact), ?category= (action prefix, e.g. "assessments."),
+        ?actor= (email contains), ?days=, ?target_id=."""
         queryset = AuditEvent.objects.all()
-        if action := self.request.query_params.get("action"):
+        params = self.request.query_params
+        if action := params.get("action"):
             queryset = queryset.filter(action=action)
-        if target_id := self.request.query_params.get("target_id"):
+        if category := params.get("category"):
+            queryset = queryset.filter(action__startswith=category)
+        if actor := params.get("actor", "").strip():
+            queryset = queryset.filter(actor_email__icontains=actor)
+        if (days := params.get("days", "")).isdigit():
+            since = timezone.now() - timezone.timedelta(days=int(days))
+            queryset = queryset.filter(occurred_at__gte=since)
+        if target_id := params.get("target_id"):
             queryset = queryset.filter(target_id=target_id)
         return queryset
 

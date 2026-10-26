@@ -78,3 +78,24 @@ class StudentGuardian(models.Model):
         constraints: ClassVar = [
             models.UniqueConstraint(fields=["student", "guardian_user_id"], name="uniq_guardian")
         ]
+
+
+class PromotionRun(models.Model):
+    """One end-of-year promotion: who moved where, kept for reference."""
+
+    session = models.ForeignKey(
+        "academics.AcademicSession",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+    run_by = models.UUIDField()
+    run_at = models.DateTimeField(auto_now_add=True)
+    summary = models.JSONField(
+        default=dict
+    )  # {"promoted": n, "repeated": n, "graduated": n, "left": n}
+    moves = models.JSONField(default=list)  # [{"student", "name", "action", "from", "to"}]
+
+    class Meta:
+        ordering: ClassVar = ["-run_at"]

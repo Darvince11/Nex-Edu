@@ -8,6 +8,8 @@ from .base import env, env_list
 
 DEBUG = False
 SECRET_KEY = env("DJANGO_SECRET_KEY", required=True)
+# e.g. "api.nexedu.com.gh,.nexedu.com.gh". Unset would refuse every request: stop at start.
+env("DJANGO_ALLOWED_HOSTS", required=True)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 
 DATABASES = {

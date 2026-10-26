@@ -47,6 +47,8 @@ def invite_member(
 
     with transaction.atomic():
         user = User.objects.filter(email=email).first()
+        if user is not None and user.pk == getattr(request.user, "pk", None):
+            raise PermissionDenied("You can't give yourself a role. Ask the proprietor.")
         created = user is None
         if user is None:
             user = User.objects.create_user(

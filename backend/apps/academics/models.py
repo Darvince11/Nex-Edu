@@ -14,6 +14,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 
+from core.links import VideoLinkField
+
 
 class Section(models.TextChoices):
     KINDERGARTEN = "kg", "Kindergarten"
@@ -165,6 +167,7 @@ class Period(models.Model):
     arm = models.ForeignKey(ClassArm, on_delete=models.CASCADE, related_name="periods")
     subject = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name="periods")
     teacher_user_id = models.UUIDField(null=True, blank=True, db_index=True)
+    video_url = VideoLinkField(help_text="For lessons taught online")
     weekday = models.PositiveSmallIntegerField(choices=Weekday.choices)
     starts_at = models.TimeField()
     ends_at = models.TimeField()
@@ -177,3 +180,46 @@ class Period(models.Model):
                 condition=Q(ends_at__gt=models.F("starts_at")), name="period_times_ordered"
             )
         ]
+
+
+class CalendarEvent(models.Model):
+    """Something on the school calendar: a holiday, exams, a PTA meeting, sports day.
+
+    Term dates and Ghana's public holidays are added to the calendar automatically
+    (``apps.academics.calendar``) and are not stored here.
+    """
+
+    class Kind(models.TextChoices):
+        HOLIDAY = "holiday", "Holiday (school closed)"
+        EXAM = "exam", "Exams"
+        MEETING = "meeting", "Meeting"
+        EVENT = "event", "School event"
+        OTHER = "other", "Other"
+
+    class Audience(models.TextChoices):
+        EVERYONE = "everyone", "Everyone"
+        STAFF = "staff", "Staff only"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=120)
+    kind = models.CharField(max_length=10, choices=Kind.choices, default=Kind.EVENT)
+    starts_on = models.DateField(db_index=True)
+    ends_on = models.DateField()
+    starts_at = models.TimeField(null=True, blank=True)
+    ends_at = models.TimeField(null=True, blank=True)
+    location = models.CharField(max_length=120, blank=True)
+    description = models.TextField(max_length=1000, blank=True)
+    audience = models.CharField(max_length=10, choices=Audience.choices, default=Audience.EVERYONE)
+    created_by = models.UUIDField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering: ClassVar = ["starts_on", "starts_at"]
+        constraints: ClassVar = [
+            models.CheckConstraint(
+                condition=Q(ends_on__gte=models.F("starts_on")), name="event_ends_after_start"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.title

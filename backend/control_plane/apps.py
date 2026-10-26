@@ -6,4 +6,4 @@ class ControlPlaneConfig(AppConfig):
     verbose_name = "Control plane"
 
     def ready(self) -> None:
-        from . import signals  # noqa: F401
+        from . import jobs, signals  # noqa: F401

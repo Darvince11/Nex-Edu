@@ -149,8 +149,8 @@ def test_teachers_can_read_but_not_change_structure(campus, make_member, api):
 
 
 def test_invite_creates_login_and_sends_email(tenant, make_member, api):
-    principal = api(make_member(tenant, Role.PRINCIPAL), tenant)
-    response = principal.post(
+    owner = api(make_member(tenant, Role.OWNER), tenant)
+    response = owner.post(
         "/api/v1/members/",
         {
             "email": "Kofi@Example.test",
@@ -178,14 +178,7 @@ def test_cannot_grant_more_access_than_you_have(tenant, make_member, api):
         ).status_code
         == 403
     )
-    principal = api(make_member(tenant, Role.PRINCIPAL), tenant)
-    # A bursar can manage finance; a head teacher can't, so can't create one.
-    assert (
-        principal.post(
-            "/api/v1/members/", {"email": "b@example.test", "role": "bursar"}, format="json"
-        ).status_code
-        == 403
-    )
+
     owner = api(make_member(tenant, Role.OWNER), tenant)
     assert (
         owner.post(
@@ -193,6 +186,94 @@ def test_cannot_grant_more_access_than_you_have(tenant, make_member, api):
         ).status_code
         == 201
     )
+
+
+def test_administrator_sees_staff_but_gives_no_staff_access(tenant, make_member, api):
+    """The administrator sees who has access and invites parents, but can't give,
+    resend or remove staff access."""
+    client = api(make_member(tenant, Role.ADMIN), tenant)
+    teacher = make_member(tenant, Role.TEACHER)
+    listed = client.get("/api/v1/members/")
+    assert listed.status_code == 200
+    assert teacher.email in {m["email"] for m in listed.data}
+    for staff_role in ("teacher", "form_teacher", "bursar", "admin"):
+        invite = {"email": f"{staff_role}@example.test", "role": staff_role}
+        assert client.post("/api/v1/members/", invite, format="json").status_code == 403
+    member_id = next(m["id"] for m in listed.data if m["email"] == teacher.email)
+    assert client.post(f"/api/v1/members/{member_id}/deactivate/").status_code == 403
+    assert client.post(f"/api/v1/members/{member_id}/resend_invite/").status_code == 403
+    parent = client.post(
+        "/api/v1/members/", {"email": "p@example.test", "role": "parent"}, format="json"
+    )
+    assert parent.status_code == 201, parent.content
+    assert api(make_member(tenant, Role.TEACHER), tenant).get("/api/v1/members/").status_code == 403
+
+
+def test_head_teacher_adds_and_blocks_teaching_and_support_staff(tenant, make_member, api):
+    head_user = make_member(tenant, Role.PRINCIPAL, email="head@example.test")
+    head = api(head_user, tenant)
+    for staff_role in ("teacher", "form_teacher", "librarian", "warden", "driver"):
+        invite = {"email": f"{staff_role}@example.test", "role": staff_role, "first_name": "New"}
+        assert head.post("/api/v1/members/", invite, format="json").status_code == 201, staff_role
+    # Leadership and finance roles stay with the proprietor.
+    for staff_role in ("owner", "principal", "admin", "bursar"):
+        invite = {"email": f"{staff_role}@example.test", "role": staff_role}
+        assert head.post("/api/v1/members/", invite, format="json").status_code == 403, staff_role
+
+    teacher = make_member(tenant, Role.TEACHER)
+    owner = make_member(tenant, Role.OWNER)
+    bursar = make_member(tenant, Role.BURSAR)
+    by_user = {m.user_id: m.pk for m in Membership.objects.filter(tenant=tenant)}
+    assert head.post(f"/api/v1/members/{by_user[teacher.pk]}/deactivate/").status_code == 200
+    assert api(teacher, tenant).get("/api/v1/students/").status_code == 403  # blocked
+    assert head.post(f"/api/v1/members/{by_user[teacher.pk]}/activate/").status_code == 200
+    assert api(teacher, tenant).get("/api/v1/students/").status_code == 200  # unblocked
+    for leader in (owner, bursar):
+        assert head.post(f"/api/v1/members/{by_user[leader.pk]}/deactivate/").status_code == 403
+    assert head.post(f"/api/v1/members/{by_user[head_user.pk]}/deactivate/").status_code in (
+        400,
+        403,
+    )
+
+
+def test_names_are_optional_when_inviting(tenant, make_member, api):
+    """The invite form sends empty fields for names nobody typed in."""
+    owner = api(make_member(tenant, Role.OWNER), tenant)
+    blank = {"email": "nameless@example.test", "role": "teacher", "first_name": "", "last_name": ""}
+    response = owner.post("/api/v1/members/", {**blank, "phone": ""}, format="json")
+    assert response.status_code == 201, response.content
+
+
+def test_nobody_gives_themselves_a_role(tenant, make_member, api):
+    """Otherwise a head teacher could add themselves as a teacher and enter scores."""
+    head_user = make_member(tenant, Role.PRINCIPAL, email="head@example.test")
+    response = api(head_user, tenant).post(
+        "/api/v1/members/", {"email": "Head@Example.test", "role": "teacher"}, format="json"
+    )
+    assert response.status_code == 403
+    assert not Membership.objects.filter(user=head_user, role=Role.TEACHER).exists()
+
+
+def test_me_lists_the_roles_each_person_may_give(tenant, make_member, api):
+    def grantable(role):
+        me = api(make_member(tenant, role), None).get("/api/v1/me/").data
+        return me["schools"][0]["grantable_roles"]
+
+    assert grantable(Role.PRINCIPAL) == [
+        "teacher",
+        "form_teacher",
+        "librarian",
+        "warden",
+        "driver",
+        "nurse",
+        "store_keeper",
+        "gate",
+        "parent",
+        "student",
+    ]
+    assert grantable(Role.ADMIN) == ["parent", "student"]
+    assert grantable(Role.TEACHER) == []
+    assert "principal" in grantable(Role.OWNER) and "bursar" in grantable(Role.OWNER)
 
 
 def test_deactivated_member_loses_access(tenant, make_member, api):

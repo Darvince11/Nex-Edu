@@ -1,0 +1,10 @@
+{% autoescape off %}Hello,
+
+Someone (maybe you) tried to create a Nex Edu account with {{ email }}, but an account with this email already exists. No new account was created.
+
+If it was you and you've forgotten your password, reset it here:
+{{ password_reset_url }}
+
+If it wasn't you, you don't need to do anything. Your account hasn't changed.
+
+Nex Edu{% endautoescape %}

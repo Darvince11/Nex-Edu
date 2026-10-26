@@ -101,6 +101,7 @@ def results(campus, make_member, make_student, api):
     """Three JHS 1 students, four core subjects + two electives, then computed."""
     principal = make_member(campus.tenant, Role.PRINCIPAL)
     client = api(principal, campus.tenant)
+    entry = api(make_member(campus.tenant, Role.ADMIN), campus.tenant)
     a = make_student(campus.tenant, arm=campus.jhs1, first_name="Akua")
     b = make_student(campus.tenant, arm=campus.jhs1, first_name="Bright")
     c = make_student(campus.tenant, arm=campus.jhs1, first_name="Comfort")
@@ -112,8 +113,10 @@ def results(campus, make_member, make_student, api):
         "RME": {a: (29, 65), b: (29, 65), c: (25, 50)},
         "ICT": {a: (20, 50), b: (20, 50), c: (18, 50)},
     }
+    # The head teacher doesn't enter scores; the administrator does here.
+    assert _enter(client, campus, campus.jhs1, "ENG", scores["ENG"]).status_code == 403
     for subject, rows in scores.items():
-        assert _enter(client, campus, campus.jhs1, subject, rows).status_code == 200
+        assert _enter(entry, campus, campus.jhs1, subject, rows).status_code == 200
     computed = client.post(
         "/api/v1/assessments/results/compute/",
         {"arm": str(campus.jhs1.pk), "term": campus.term.pk},
@@ -185,11 +188,15 @@ def test_published_scores_are_locked_and_amendments_audited(campus, results, mak
         "reason": "Exam script re-marked after appeal",
     }
     assert admin.post("/api/v1/assessments/scores/amend/", body, format="json").status_code == 403
-    short = results["client"].post(
+    # Amending is score entry too, so the head teacher can't; the proprietor can.
+    head = results["client"]
+    assert head.post("/api/v1/assessments/scores/amend/", body, format="json").status_code == 403
+    owner = api(make_member(campus.tenant, Role.OWNER), campus.tenant)
+    short = owner.post(
         "/api/v1/assessments/scores/amend/", {**body, "reason": "typo"}, format="json"
     )
     assert short.status_code == 400
-    ok = results["client"].post("/api/v1/assessments/scores/amend/", body, format="json")
+    ok = owner.post("/api/v1/assessments/scores/amend/", body, format="json")
     assert ok.status_code == 200, ok.data
     with tenant_context(campus.tenant):
         event = AuditEvent.objects.get(action="assessments.score_amended")

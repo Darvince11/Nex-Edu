@@ -1,0 +1,11 @@
+{% autoescape off %}Hello{% if user.first_name %} {{ user.first_name }}{% endif %},
+
+Your Nex Edu verification code is:
+
+{{ code }}
+
+Enter it on the screen where you signed up. It expires in 15 minutes.
+
+Nex Edu staff will never ask you for this code. If you didn't try to create an account, you can ignore this email; nothing happens without the code.
+
+Nex Edu{% endautoescape %}

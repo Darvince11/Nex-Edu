@@ -1,4 +1,4 @@
-# CloudFront (WAF, Lagos edge) → ALB (only reachable from CloudFront) → ECS.
+# CloudFront (WAF, West African edges) → ALB (only reachable from CloudFront) → ECS.
 # /api/* and /_allauth/* go to Django; everything else goes to Next.js.
 
 resource "aws_acm_certificate" "alb" {
@@ -123,7 +123,7 @@ resource "aws_cloudfront_distribution" "this" {
   http_version    = "http2and3"
   aliases         = [var.domain, "*.${var.domain}"]
   web_acl_id      = module.edge.web_acl_arn
-  price_class     = "PriceClass_All" # includes the Lagos and Johannesburg edges
+  price_class     = "PriceClass_All" # includes the West and South African edges nearest Ghana
 
   origin {
     origin_id   = "alb"

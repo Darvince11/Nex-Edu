@@ -15,6 +15,7 @@ import {
   Table,
   Td,
 } from "@/components/ui";
+import { JoinLink } from "@/components/video-link";
 import {
   type Assignment,
   api,
@@ -26,14 +27,14 @@ import {
 } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { useArms, useCurrentTerm, useSchool, useSubjects, useTerms } from "@/lib/hooks";
-import { isLeader } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 
 const DAYS = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 type Tab = "year" | "classes" | "teachers" | "timetable";
 
 export default function AcademicsPage() {
-  const { roles } = useSchool();
-  const leader = isLeader(roles);
+  const { can } = useSchool();
+  const leader = can(PERM.ACADEMICS_MANAGE);
   const [tab, setTab] = useState<Tab>(leader ? "year" : "timetable");
   const tabs: [Tab, string][] = leader
     ? [
@@ -379,20 +380,26 @@ function TeacherAssignments() {
   );
 }
 
+/**
+ * Leaders (academics.manage) keep every class's timetable. Teachers see their
+ * week and keep the timetable of the classes they teach (academics.timetable_own).
+ */
 function Timetable({ leader }: { leader: boolean }) {
   const client = useQueryClient();
+  const { me, can } = useSchool();
   const term = useCurrentTerm();
-  const arms = useArms();
+  const arms = useArms(!leader);
   const [arm, setArm] = useState("");
   const subjects = useSubjects(arm || undefined);
+  const editable = Boolean(arm) && (leader || can(PERM.ACADEMICS_TIMETABLE_OWN));
   const staff = useQuery({
     queryKey: ["members"],
     queryFn: () => api.get<Member[]>("/api/v1/members"),
     enabled: leader,
   });
-  const filter = leader ? (arm ? `&arm=${arm}` : "") : "&teacher=me";
+  const filter = arm ? `&arm=${arm}` : "&teacher=me";
   const periods = useQuery({
-    queryKey: ["periods", term.data?.id, leader ? arm : "me"],
+    queryKey: ["periods", term.data?.id, arm || "me"],
     queryFn: () => api.get<Period[]>(`/api/v1/academics/periods?term=${term.data?.id}${filter}`),
     enabled: Boolean(term.data) && (!leader || Boolean(arm)),
   });
@@ -406,24 +413,28 @@ function Timetable({ leader }: { leader: boolean }) {
   });
 
   if (!term.data) return <Empty>Set a current term first.</Empty>;
-  const byDay = (day: number) => (periods.data ?? []).filter((p) => p.weekday === day);
+  const byDay = (day: number) =>
+    (periods.data ?? [])
+      .filter((p) => p.weekday === day)
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
 
   return (
     <div className="flex flex-col gap-4">
-      {leader && (
-        <div className="max-w-xs">
-          <Field label="Class">
-            <Select value={arm} onChange={(e) => setArm(e.target.value)}>
-              <option value="">Choose a class</option>
-              {arms.data?.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </div>
-      )}
+      <div className="max-w-xs">
+        <Field
+          label="Class"
+          hint={leader ? undefined : "Choose one of your classes to change its timetable."}
+        >
+          <Select value={arm} onChange={(e) => setArm(e.target.value)}>
+            <option value="">{leader ? "Choose a class" : "My week"}</option>
+            {arms.data?.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </div>
       <div className="grid gap-3 md:grid-cols-5">
         {[1, 2, 3, 4, 5].map((day) => (
           <Card key={day} title={DAYS[day]}>
@@ -433,16 +444,18 @@ function Timetable({ leader }: { leader: boolean }) {
                   <li key={p.id} className="rounded-md bg-neutral-50 p-2 dark:bg-neutral-800">
                     <div className="font-medium">{p.subject_name}</div>
                     <div className="text-xs text-neutral-500">
-                      {p.starts_at.slice(0, 5)}–{p.ends_at.slice(0, 5)} {!leader && `· ${p.arm_label}`}{" "}
+                      {p.starts_at.slice(0, 5)}–{p.ends_at.slice(0, 5)} {!arm && `· ${p.arm_label}`}{" "}
                       {p.room && `· ${p.room}`}
                     </div>
-                    {leader && (
+                    <JoinLink url={p.video_url} label="Lesson" />
+                    {editable && (
                       <button
                         type="button"
-                        className="text-xs text-red-700 underline"
+                        className="text-xs text-red-700 underline dark:text-red-400"
                         onClick={() => remove.mutate(p.id)}
+                        aria-label={`Remove ${p.subject_name} on ${DAYS[day]} at ${p.starts_at.slice(0, 5)}`}
                       >
-                        remove
+                        Remove
                       </button>
                     )}
                   </li>
@@ -454,12 +467,13 @@ function Timetable({ leader }: { leader: boolean }) {
           </Card>
         ))}
       </div>
-      {leader && arm && (
+      {editable && (
         <Card title="Add a period">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               const f = Object.fromEntries(new FormData(e.currentTarget));
+              const teacher = leader ? f.teacher || null : f.mine ? me.data?.id : null;
               add.mutate({
                 term: term.data?.id,
                 arm,
@@ -467,8 +481,9 @@ function Timetable({ leader }: { leader: boolean }) {
                 weekday: Number(f.weekday),
                 starts_at: f.starts_at,
                 ends_at: f.ends_at,
-                teacher_user_id: f.teacher || null,
+                teacher_user_id: teacher,
                 room: f.room,
+                video_url: f.video_url ?? "",
               });
             }}
             className="grid gap-2 sm:grid-cols-6 sm:items-end"
@@ -497,22 +512,37 @@ function Timetable({ leader }: { leader: boolean }) {
                 ))}
               </Select>
             </Field>
-            <Field label="Teacher">
-              <Select name="teacher">
-                <option value="">—</option>
-                {[
-                  ...new Map(
-                    (staff.data ?? [])
-                      .filter((m) => ["teacher", "form_teacher"].includes(m.role))
-                      .map((m) => [m.user, m]),
-                  ).values(),
-                ].map((m) => (
-                  <option key={m.user} value={m.user}>
-                    {`${m.first_name} ${m.last_name}`.trim() || m.email}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+            {leader ? (
+              <Field label="Teacher">
+                <Select name="teacher">
+                  <option value="">—</option>
+                  {[
+                    ...new Map(
+                      (staff.data ?? [])
+                        .filter((m) => ["teacher", "form_teacher"].includes(m.role))
+                        .map((m) => [m.user, m]),
+                    ).values(),
+                  ].map((m) => (
+                    <option key={m.user} value={m.user}>
+                      {`${m.first_name} ${m.last_name}`.trim() || m.email}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            ) : (
+              <label className="flex items-center gap-2 pb-2 text-sm">
+                <input type="checkbox" name="mine" defaultChecked className="size-4 accent-brand" />I teach
+                this period
+              </label>
+            )}
+            <div className="sm:col-span-5">
+              <Field
+                label="Online lesson link (optional)"
+                hint="For lessons taught online; starts with https://"
+              >
+                <Input name="video_url" type="url" inputMode="url" maxLength={500} pattern="https://.*" />
+              </Field>
+            </div>
             <Button type="submit" busy={add.isPending}>
               Add
             </Button>

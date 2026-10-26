@@ -398,6 +398,11 @@ def publish_results(*, request: HttpRequest | None, arm: ClassArm, term: Term) -
             target=arm,
             after={"term": str(term.pk), "published": len(drafts)},
         )
+        from control_plane.developer import emit
+
+        emit(
+            "results.published", {"class": str(arm), "term": str(term), "report_cards": len(drafts)}
+        )
 
     _schedule_pdfs(arm, term)
     channels = {Channel.SMS} if MessagingSettings.load().notify_results_by_sms else set()

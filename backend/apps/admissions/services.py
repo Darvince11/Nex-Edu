@@ -138,4 +138,16 @@ def enrol(
             target=application,
             after={"student_id": str(student.pk), "arm": str(arm)},
         )
+        from control_plane.developer import emit
+
+        emit(
+            "student.admitted",
+            {
+                "id": str(student.pk),
+                "admission_number": student.admission_number,
+                "first_name": student.first_name,
+                "last_name": student.last_name,
+                "class": str(arm),
+            },
+        )
     return application

@@ -1,12 +1,66 @@
 @import "tailwindcss";
 
+/* Dark mode is chosen by the person (the toggle), not the device: <html class="dark">.
+   Light is the default. See lib/theme.ts. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Colours sampled from the Nex Edu logo (web/public/brand/nex-edu-logo.png). */
 @theme {
-  --color-brand: oklch(0.45 0.12 160);
-  --color-brand-strong: oklch(0.38 0.12 160);
+  --color-brand: #0c63d9; /* body of the N; 5.5:1 with white text */
+  --color-brand-strong: #043dcc; /* royal blue at the foot of the N */
+  --color-brand-bright: #0794f7; /* "Edu"; accent text on dark surfaces */
+  --color-brand-sky: #03b8fd; /* top of the N gradient */
+  --color-brand-navy: #042159; /* cap and "Nex" */
+  --color-brand-50: #eef5fe; /* very light blue surface (page intros, highlights) */
+
+  /* Greys carry the logo's navy hue so surfaces, borders and dark mode sit with the brand. */
+  --color-neutral-50: oklch(98.4% 0.003 260);
+  --color-neutral-100: oklch(96.8% 0.007 260);
+  --color-neutral-200: oklch(92.9% 0.013 260);
+  --color-neutral-300: oklch(86.9% 0.022 260);
+  --color-neutral-400: oklch(70.4% 0.04 260);
+  --color-neutral-500: oklch(55.4% 0.046 260);
+  --color-neutral-600: oklch(44.6% 0.043 260);
+  --color-neutral-700: oklch(37.2% 0.044 260);
+  --color-neutral-800: oklch(27.9% 0.041 262);
+  --color-neutral-900: oklch(20.8% 0.042 264);
+  --color-neutral-950: oklch(14.5% 0.045 264);
+
+  /* Link text. Not brand itself: dark mode needs a lighter blue for text, but
+     buttons keep brand because white text on the lighter blue fails contrast. */
+  --color-link: #0c63d9; /* 5.5:1 on white */
+  --color-link-hover: #043dcc;
+
+  /* One radius for controls (inputs, buttons), one for containers (cards, tables, dialogs). */
+  --radius-control: 0.375rem;
+  --radius-card: 0.75rem;
+  /* The only card elevation; dialogs use shadow-xl. Tinted with the logo navy. */
+  --shadow-card: 0 1px 2px 0 rgb(4 33 89 / 0.06), 0 1px 3px 0 rgb(4 33 89 / 0.05);
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+  /* Chart colours (components/charts.tsx). Validated with the dataviz palette checks
+     (CVD separation, contrast >= 3:1) against white cards and, below, neutral-900. */
+  --chart-1: #0c63d9; /* brand blue: the main series */
+  --chart-2: #eb6834; /* orange: a second series only */
+  --chart-grid: #e3e8f0;
+  --chart-axis: #c3cbd8;
+  --chart-surface: #ffffff;
+}
+
+/* Dark surfaces (neutral-900/950) need lighter text to reach WCAG AA 4.5:1.
+   neutral-500 is only used for muted text, so it lifts to the neutral-400 value. */
+:root.dark {
+  color-scheme: dark;
+  --color-neutral-500: oklch(70.4% 0.04 260); /* ~7:1 on neutral-950 */
+  --color-link: #0794f7; /* logo "Edu" blue, ~5.9:1 on neutral-950 */
+  --color-link-hover: #03b8fd;
+  --chart-1: #0794f7;
+  --chart-2: #e0672f;
+  --chart-grid: #1d293d;
+  --chart-axis: #34425a;
+  --chart-surface: #0e172b; /* neutral-900, the card colour */
 }
 
 body {
@@ -14,13 +68,13 @@ body {
 }
 
 .input {
-  @apply w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-700 dark:bg-neutral-900;
+  @apply w-full rounded-control border border-neutral-300 bg-white px-3 py-2 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-neutral-700 dark:bg-neutral-900;
 }
 
 .btn {
-  @apply inline-flex items-center justify-center rounded-md bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong disabled:opacity-60;
+  @apply inline-flex items-center justify-center rounded-control bg-brand px-4 py-2 font-medium text-white hover:bg-brand-strong disabled:opacity-60;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center rounded-md border border-neutral-300 px-4 py-2 font-medium hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900;
+  @apply inline-flex items-center justify-center rounded-control border border-neutral-300 px-4 py-2 font-medium hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900;
 }

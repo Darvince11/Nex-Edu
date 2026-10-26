@@ -7,7 +7,7 @@ import { api, getSelectedSchool, rawPost } from "@/lib/api";
 import { todayInAccra } from "@/lib/format";
 import { useArms, useOnline, useSchool } from "@/lib/hooks";
 import { enqueue, flush, type QueuedRegister, readQueue } from "@/lib/offline-queue";
-import { isLeader } from "@/lib/roles";
+import { PERM } from "@/lib/permissions";
 
 type Row = { student: string; admission_number: string; name: string; status: string | null; note: string };
 type Sheet = { arm: string; arm_label: string; date: string; rows: Row[] };
@@ -29,10 +29,11 @@ const STATUSES = [
 const REGISTER_URL = "/api/v1/attendance/register";
 
 export default function AttendancePage() {
-  const { roles } = useSchool();
+  const { can } = useSchool();
   const online = useOnline();
   const client = useQueryClient();
-  const arms = useArms(!isLeader(roles));
+  // Teachers take registers for the classes they teach; leaders for any class.
+  const arms = useArms(!can(PERM.ATTENDANCE_MANAGE));
   const [arm, setArm] = useState("");
   const [date, setDate] = useState(todayInAccra());
   const [marks, setMarks] = useState<Record<string, string>>({});
@@ -170,7 +171,7 @@ export default function AttendancePage() {
               </span>
             ))}
           </div>
-          <ul className="divide-y divide-neutral-100 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+          <ul className="divide-y divide-neutral-100 rounded-card border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {rows.map((r) => (
               <li key={r.student} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                 <div>

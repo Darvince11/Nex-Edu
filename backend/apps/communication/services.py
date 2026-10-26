@@ -71,6 +71,10 @@ def notify_users(
         ],
         batch_size=BATCH,
     )
+    # The same notice on any browser the person turned push on for.
+    from control_plane.push import queue as push
+
+    push(user_ids, title=title, body=body, url=(data or {}).get("url", "/inbox"))
     channels = set(channels) - {Channel.IN_APP}
     if channels:
         deliveries: list[Delivery] = []

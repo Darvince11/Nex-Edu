@@ -20,7 +20,7 @@ import {
 } from "@/components/ui";
 import { type Application, type Arm, api } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { useArms, useSchoolSlug } from "@/lib/hooks";
+import { useArms, useSchool } from "@/lib/hooks";
 
 const NEXT_STEPS: Record<string, { status: string; label: string; variant?: "secondary" | "danger" }[]> = {
   submitted: [
@@ -39,7 +39,7 @@ export default function AdmissionsPage() {
   const [status, setStatus] = useState("");
   const [open, setOpen] = useState<Application | null>(null);
   const [creating, setCreating] = useState(false);
-  const slug = useSchoolSlug();
+  const { slug } = useSchool();
   const apps = useQuery({
     queryKey: ["applications", status],
     queryFn: () =>

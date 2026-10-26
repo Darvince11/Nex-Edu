@@ -16,12 +16,13 @@ from rest_framework.views import APIView
 
 from apps.academics.api.views import AuditedCrudViewSet
 from apps.academics.models import ClassArm, ClassLevel, Term
+from core.permissions import load_membership
 from core.rbac import STAFF_ROLES, Perm, permissions_for_roles
 from core.views import PublicEndpointMixin, TenantViewSet
 from integrations.payments import PaymentProviderError
 
 from .. import services
-from ..models import FeeItem, FeeSchedule, Invoice, InvoiceLine, Payment
+from ..models import FeeItem, FeeSchedule, Invoice, InvoiceLine, Payment, Scholarship
 from ..pdf import render_receipt
 from ..tasks import process_payment_webhook
 
@@ -36,10 +37,14 @@ CONFIG_PERMS: dict[str, Any] = {
 }
 
 
-def _is_finance_staff(roles: frozenset[str]) -> bool:
-    """Finance visibility from staff roles only; a head teacher who is also a parent
-    still sees every invoice, a parent-only user sees their children's."""
-    return VIEW in permissions_for_roles(roles & STAFF_ROLES)
+def _is_finance_staff(request: Request) -> bool:
+    """Finance visibility from staff roles (and custom roles, which only staff hold);
+    a head teacher who is also a parent still sees every invoice, a parent-only user
+    sees their children's."""
+    roles = load_membership(request)
+    return VIEW in permissions_for_roles(roles & STAFF_ROLES) or VIEW in getattr(
+        request, "custom_permissions", frozenset()
+    )
 
 
 class FeeItemSerializer(serializers.ModelSerializer[FeeItem]):
@@ -193,11 +198,11 @@ class InvoiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, TenantVie
     }
 
     def get_queryset(self) -> QuerySet[Invoice]:
-        user, roles, _ = self.actor()
+        user, _, _ = self.actor()
         qs = Invoice.objects.select_related("student", "term__session").prefetch_related(
             "lines", "payments"
         )
-        if not _is_finance_staff(roles):
+        if not _is_finance_staff(self.request):
             qs = qs.filter(student__guardians__guardian_user_id=user.pk).distinct()
         params = self.request.query_params
         if term := params.get("term"):
@@ -286,9 +291,9 @@ class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, TenantVie
     }
 
     def get_queryset(self) -> QuerySet[Payment]:
-        user, roles, _ = self.actor()
+        user, _, _ = self.actor()
         qs = Payment.objects.select_related("invoice__student", "invoice__term")
-        if not _is_finance_staff(roles):
+        if not _is_finance_staff(self.request):
             qs = qs.filter(invoice__student__guardians__guardian_user_id=user.pk).distinct()
         params = self.request.query_params
         if status_ := params.get("status"):
@@ -357,3 +362,161 @@ class PaystackWebhookView(_WebhookView):
 
 class FlutterwaveWebhookView(_WebhookView):
     provider_name = "flutterwave"
+
+
+# --- Reports and scholarships ------------------------------------------------------------
+
+
+def _finance_staff_only(request: Request) -> None:
+    """Parents hold finance.view for their own invoices; school-wide figures are staff-only."""
+    from core.rbac import STAFF_ROLES
+
+    if not load_membership(request) & STAFF_ROLES:
+        raise PermissionDenied("Finance reports are for school staff.")
+
+
+class BalancesReportView(APIView):
+    """Pupils who still owe for a term (?term=, default current; ?arm=; ?export=csv)."""
+
+    required_permissions: ClassVar = {"GET": Perm.FINANCE_VIEW}
+
+    @extend_schema(responses=OpenApiTypes.OBJECT)
+    def get(self, request: Request) -> Any:
+        from django.http import HttpResponse
+
+        from .. import reports
+
+        _finance_staff_only(request)
+        term_id = request.query_params.get("term")
+        term = (
+            get_object_or_404(Term, pk=term_id)
+            if term_id
+            else Term.objects.filter(is_current=True).first()
+        )
+        if term is None:
+            return Response({"detail": "Set a current term first."}, status=400)
+        report = reports.balances(term, arm=request.query_params.get("arm") or None)
+        if request.query_params.get("export") == "csv":
+            response = HttpResponse(
+                reports.balances_csv(report), content_type="text/csv; charset=utf-8"
+            )
+            response["Content-Disposition"] = (
+                f'attachment; filename="outstanding-fees-{term.pk}.csv"'
+            )
+            return response
+        return Response(report)
+
+
+class CollectionsReportView(APIView):
+    """Money received between ?start= and ?end= (default: this month so far)."""
+
+    required_permissions: ClassVar = {"GET": Perm.FINANCE_VIEW}
+
+    @extend_schema(responses=OpenApiTypes.OBJECT)
+    def get(self, request: Request) -> Response:
+        import datetime as dt
+
+        from django.utils import timezone
+
+        from .. import reports
+
+        _finance_staff_only(request)
+        today = timezone.localdate()
+        try:
+            start = dt.date.fromisoformat(
+                request.query_params.get("start") or today.replace(day=1).isoformat()
+            )
+            end = dt.date.fromisoformat(request.query_params.get("end") or today.isoformat())
+        except ValueError:
+            return Response({"detail": "Use YYYY-MM-DD dates."}, status=400)
+        if end < start or (end - start).days > 366:
+            return Response({"detail": "Choose up to a year, ending after it starts."}, status=400)
+        return Response(reports.collections(start, end))
+
+
+class ScholarshipSerializer(serializers.ModelSerializer[Scholarship]):
+    student_name = serializers.CharField(source="student.full_name", read_only=True)
+    student_class = serializers.SerializerMethodField()
+    item_name = serializers.CharField(source="item.name", read_only=True, default="")
+    apply_now = serializers.BooleanField(write_only=True, required=False, default=False)
+
+    class Meta:
+        model = Scholarship
+        fields: ClassVar = [
+            "id",
+            "student",
+            "student_name",
+            "student_class",
+            "name",
+            "percent",
+            "amount_pesewas",
+            "item",
+            "item_name",
+            "is_active",
+            "note",
+            "created_at",
+            "apply_now",
+        ]
+        read_only_fields: ClassVar = ["created_at"]
+
+    def get_student_class(self, obj: Scholarship) -> str:
+        return str(obj.student.arm) if obj.student.arm_id else ""
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        percent = attrs.get("percent", getattr(self.instance, "percent", None))
+        amount = attrs.get("amount_pesewas", getattr(self.instance, "amount_pesewas", None))
+        if (percent is None) == (amount is None):
+            raise serializers.ValidationError("Give either a percentage or an amount.")
+        if percent is not None and not (0 < percent <= 100):
+            raise serializers.ValidationError({"percent": "Between 1 and 100."})
+        return attrs
+
+
+class ScholarshipViewSet(AuditedCrudViewSet):
+    """Standing reductions on pupils' fees. ``apply_now`` on create also takes it off
+    the pupil's open invoice for the current term."""
+
+    serializer_class = ScholarshipSerializer
+    audit_name = "finance.scholarship"
+    required_permissions: ClassVar = {
+        "list": Perm.FINANCE_VIEW,
+        "retrieve": Perm.FINANCE_VIEW,
+        "create": Perm.FINANCE_MANAGE,
+        "update": Perm.FINANCE_MANAGE,
+        "partial_update": Perm.FINANCE_MANAGE,
+        "destroy": Perm.FINANCE_MANAGE,
+    }
+
+    def get_queryset(self) -> QuerySet[Scholarship]:
+        if getattr(self, "swagger_fake_view", False):  # schema generation
+            return Scholarship.objects.none()
+        _finance_staff_only(self.request)
+        qs = Scholarship.objects.select_related("student__arm__level", "item")
+        if student := self.request.query_params.get("student"):
+            qs = qs.filter(student_id=student)
+        return qs
+
+    def perform_create(self, serializer: Any) -> None:
+        apply_now = serializer.validated_data.pop("apply_now", False)
+        serializer.validated_data["created_by"] = self.request.user.pk
+        super().perform_create(serializer)
+        if apply_now:
+            scholarship = serializer.instance
+            invoice = (
+                Invoice.objects.filter(student=scholarship.student, term__is_current=True)
+                .exclude(status=Invoice.Status.VOID)
+                .first()
+            )
+            if invoice and invoice.balance_pesewas:
+                lines = [
+                    (line.item_id, line.amount_pesewas)
+                    for line in invoice.lines.filter(amount_pesewas__gt=0)
+                ]
+                off = min(scholarship.deduction(lines), invoice.balance_pesewas)
+                if off:
+                    services.add_discount(
+                        request=self.request,
+                        invoice=invoice,
+                        description=f"Scholarship: {scholarship.name}",
+                        amount_pesewas=off,
+                    )

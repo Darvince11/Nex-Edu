@@ -20,5 +20,5 @@ def client_ip(request: HttpRequest) -> str:
 
 
 def tenant_cache_key(*parts: object) -> str:
-    """Cache keys are always namespaced by school."""
-    return ":".join(["t", require_tenant().slug, *map(str, parts)])
+    """Cache keys are always namespaced by school, by its permanent UUID (slugs can be renamed)."""
+    return ":".join(["t", str(require_tenant().pk), *map(str, parts)])

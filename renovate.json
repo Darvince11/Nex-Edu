@@ -35,11 +35,9 @@
         "djangorestframework",
         "cryptography",
         "pyjwt",
-        "fido2",
         "next",
         "react",
-        "react-dom",
-        "@simplewebauthn/browser"
+        "react-dom"
       ],
       "automerge": false
     },

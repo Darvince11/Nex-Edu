@@ -41,6 +41,7 @@ from .models import (
     LedgerAccount,
     Payment,
     PaymentSettings,
+    Scholarship,
 )
 
 logger = logging.getLogger(__name__)
@@ -81,15 +82,17 @@ def post_entry(
     lines: list[tuple[str, int, int]],
     created_by: Any = None,
     reverses: JournalEntry | None = None,
+    posted_at: Any = None,
 ) -> JournalEntry:
-    """lines: [(account_code, debit_pesewas, credit_pesewas)]. Zero lines are dropped."""
+    """lines: [(account_code, debit_pesewas, credit_pesewas)]. Zero lines are dropped.
+    ``posted_at`` dates the entry when it records something that happened earlier."""
     lines = [line for line in lines if line[1] or line[2]]
     debits, credits = sum(d for _, d, _ in lines), sum(c for _, _, c in lines)
     if debits != credits or debits == 0:
         raise LedgerImbalance(f"Debits {debits} != credits {credits} for {source_type} {source_id}")
     accounts = {a.code: a for a in LedgerAccount.objects.filter(code__in=[c for c, _, _ in lines])}
     entry = JournalEntry.objects.create(
-        posted_at=timezone.now(),
+        posted_at=posted_at or timezone.now(),
         memo=memo[:200],
         source_type=source_type,
         source_id=str(source_id),
@@ -170,10 +173,21 @@ def generate_invoices(
             skipped += 1
             continue
         lines = [s for s in schedules if s.level_id in (None, student.arm.level_id)]
-        total = sum(s.amount_pesewas for s in lines)
-        if not total:
+        gross = sum(s.amount_pesewas for s in lines)
+        if not gross:
             skipped += 1
             continue
+        # Scholarships come off as their own lines, each capped so the bill never goes negative.
+        reductions: list[tuple[str, int]] = []
+        remaining = gross
+        for scholarship in Scholarship.objects.filter(student=student, is_active=True):
+            off = min(
+                scholarship.deduction([(s.item_id, s.amount_pesewas) for s in lines]), remaining
+            )
+            if off > 0:
+                reductions.append((f"Scholarship: {scholarship.name}", off))
+                remaining -= off
+        total = gross - sum(off for _, off in reductions)
         with tenant_atomic():
             invoice = Invoice.objects.create(
                 number=formatted_number("invoice", "INV"),
@@ -193,13 +207,19 @@ def generate_invoices(
                     )
                     for s in lines
                 ]
+                + [
+                    InvoiceLine(invoice=invoice, description=label[:120], amount_pesewas=-off)
+                    for label, off in reductions
+                ]
             )
+            discount = gross - total
             post_entry(
                 memo=f"Invoice {invoice.number}",
                 source_type="invoice",
                 source_id=str(invoice.pk),
                 created_by=actor,
-                lines=[(RECEIVABLE, total, 0), (FEE_INCOME, 0, total)],
+                lines=[(RECEIVABLE, total, 0), (FEE_INCOME, 0, gross)]
+                + ([(DISCOUNTS, discount, 0)] if discount else []),
             )
         created += 1
     with tenant_atomic():
@@ -349,6 +369,7 @@ def record_manual_payment(
             after={"invoice": invoice.number, "amount_pesewas": amount_pesewas, "method": method},
         )
     _after_success(payment)
+    _payment_event(payment)
     return payment
 
 
@@ -464,7 +485,15 @@ def apply_verified(payment_id: Any, verified: VerifiedPayment) -> Payment:
             },
         )
     _after_success(payment)
+    _payment_event(payment)
     return payment
+
+
+def _payment_event(payment: Payment) -> None:
+    from control_plane.api.developer import payment_data
+    from control_plane.developer import emit
+
+    emit("payment.received", payment_data(payment))
 
 
 def verify_payment(payment: Payment) -> Payment:
@@ -485,6 +514,12 @@ def process_webhook(provider_name: str, raw_body: bytes, headers: Any) -> str:
     reference = client.reference_from_webhook(payload)
     if not reference:
         return "ignored: event"
+    if provider_name == "paystack":
+        from control_plane.subscriptions import handle_webhook_reference
+
+        # A school paying Nex Edu, not a parent paying the school.
+        if (outcome := handle_webhook_reference(reference)) is not None:
+            return outcome
     index = (
         PaymentReference.objects.select_related("tenant")
         .filter(reference=reference, provider=provider_name)

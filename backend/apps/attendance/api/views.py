@@ -96,7 +96,10 @@ class StudentAttendanceView(APIView):
     @extend_schema(responses=OpenApiTypes.OBJECT)
     def get(self, request: Request, student_id: str) -> Response:
         student = get_object_or_404(
-            visible_students(request.user, load_membership(request)), pk=student_id
+            visible_students(
+                request.user, load_membership(request), getattr(request, "permissions", ())
+            ),
+            pk=student_id,
         )
         term_id = request.query_params.get("term")
         term = (
